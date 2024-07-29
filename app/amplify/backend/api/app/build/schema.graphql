@@ -1,0 +1,836 @@
+type Request {
+  id: ID!
+  name: String!
+  title: String!
+  description: String!
+  date: AWSDateTime!
+  location: String
+  seniorID: ID!
+  volunteerID: ID
+  status: String!
+  country: String
+  locale: String
+  seniorFeedback: String
+  volunteerFeedback: String
+  responses(id: ModelIDKeyConditionInput, filter: ModelResponseFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelResponseConnection
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime
+  picture: String
+  pictures: [String]
+  rate: Int
+  volunteerName: String
+  urgent: Boolean
+  tags: [String]
+}
+
+type Response {
+  id: ID!
+  requestID: ID!
+  volunteerID: ID!
+  message: String
+  createdAt: AWSDateTime!
+  email: String
+  name: String
+  x1: String
+  updatedAt: AWSDateTime!
+}
+
+type User {
+  id: ID!
+  username: String!
+  birthdate: AWSDate
+  phone_number: AWSPhone
+  locale: String
+  email: AWSEmail
+  name: String
+  country: String
+  picture: AWSURL
+  role: String
+  description: String
+  rating: Int
+  counter: Int
+  posts(id: ModelIDKeyConditionInput, filter: ModelPostFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelPostConnection
+  comments(id: ModelIDKeyConditionInput, filter: ModelCommentFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelCommentConnection
+  replies(id: ModelIDKeyConditionInput, filter: ModelReplyFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelReplyConnection
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  content: String!
+  authorID: ID!
+  author: User
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  comments(id: ModelIDKeyConditionInput, filter: ModelCommentFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelCommentConnection
+  pictures: [AWSURL]
+  likes: Int
+  tags: [String]
+  likedBy: [ID]
+}
+
+type Comment {
+  id: ID!
+  content: String!
+  postID: ID!
+  post: Post
+  authorID: ID!
+  author: User
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  replies(id: ModelIDKeyConditionInput, filter: ModelReplyFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelReplyConnection
+}
+
+type Reply {
+  id: ID!
+  content: String!
+  commentID: ID!
+  comment: Comment
+  authorID: ID!
+  author: User
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+input ModelStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelBooleanInput {
+  ne: Boolean
+  eq: Boolean
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelSubscriptionStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  in: [String]
+  notIn: [String]
+}
+
+input ModelSubscriptionIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  in: [Int]
+  notIn: [Int]
+}
+
+input ModelSubscriptionFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  in: [Float]
+  notIn: [Float]
+}
+
+input ModelSubscriptionBooleanInput {
+  ne: Boolean
+  eq: Boolean
+}
+
+input ModelSubscriptionIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  in: [ID]
+  notIn: [ID]
+}
+
+enum ModelAttributeTypes {
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+  _null
+}
+
+input ModelSizeInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+type ModelRequestConnection {
+  items: [Request]!
+  nextToken: String
+}
+
+input ModelRequestFilterInput {
+  id: ModelIDInput
+  name: ModelStringInput
+  title: ModelStringInput
+  description: ModelStringInput
+  date: ModelStringInput
+  location: ModelStringInput
+  seniorID: ModelIDInput
+  volunteerID: ModelIDInput
+  status: ModelStringInput
+  country: ModelStringInput
+  locale: ModelStringInput
+  seniorFeedback: ModelStringInput
+  volunteerFeedback: ModelStringInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  picture: ModelStringInput
+  pictures: ModelStringInput
+  rate: ModelIntInput
+  volunteerName: ModelStringInput
+  urgent: ModelBooleanInput
+  tags: ModelStringInput
+  and: [ModelRequestFilterInput]
+  or: [ModelRequestFilterInput]
+  not: ModelRequestFilterInput
+}
+
+type Query {
+  getRequest(id: ID!): Request
+  listRequests(filter: ModelRequestFilterInput, limit: Int, nextToken: String): ModelRequestConnection
+  getResponse(id: ID!): Response
+  listResponses(filter: ModelResponseFilterInput, limit: Int, nextToken: String): ModelResponseConnection
+  getUser(id: ID!): User
+  listUsers(filter: ModelUserFilterInput, limit: Int, nextToken: String): ModelUserConnection
+  getPost(id: ID!): Post
+  listPosts(filter: ModelPostFilterInput, limit: Int, nextToken: String): ModelPostConnection
+  getComment(id: ID!): Comment
+  listComments(filter: ModelCommentFilterInput, limit: Int, nextToken: String): ModelCommentConnection
+  getReply(id: ID!): Reply
+  listReplies(filter: ModelReplyFilterInput, limit: Int, nextToken: String): ModelReplyConnection
+  requestsBySeniorIDAndId(seniorID: ID!, id: ModelIDKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelRequestFilterInput, limit: Int, nextToken: String): ModelRequestConnection
+  requestsByVolunteerIDAndId(volunteerID: ID!, id: ModelIDKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelRequestFilterInput, limit: Int, nextToken: String): ModelRequestConnection
+  responsesByRequestIDAndId(requestID: ID!, id: ModelIDKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelResponseFilterInput, limit: Int, nextToken: String): ModelResponseConnection
+  responsesByVolunteerIDAndId(volunteerID: ID!, id: ModelIDKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelResponseFilterInput, limit: Int, nextToken: String): ModelResponseConnection
+  postsByAuthorIDAndId(authorID: ID!, id: ModelIDKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelPostFilterInput, limit: Int, nextToken: String): ModelPostConnection
+  commentsByPostIDAndId(postID: ID!, id: ModelIDKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelCommentFilterInput, limit: Int, nextToken: String): ModelCommentConnection
+  commentsByAuthorIDAndId(authorID: ID!, id: ModelIDKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelCommentFilterInput, limit: Int, nextToken: String): ModelCommentConnection
+  repliesByCommentIDAndId(commentID: ID!, id: ModelIDKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelReplyFilterInput, limit: Int, nextToken: String): ModelReplyConnection
+  repliesByAuthorIDAndId(authorID: ID!, id: ModelIDKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelReplyFilterInput, limit: Int, nextToken: String): ModelReplyConnection
+}
+
+input ModelRequestConditionInput {
+  name: ModelStringInput
+  title: ModelStringInput
+  description: ModelStringInput
+  date: ModelStringInput
+  location: ModelStringInput
+  seniorID: ModelIDInput
+  volunteerID: ModelIDInput
+  status: ModelStringInput
+  country: ModelStringInput
+  locale: ModelStringInput
+  seniorFeedback: ModelStringInput
+  volunteerFeedback: ModelStringInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  picture: ModelStringInput
+  pictures: ModelStringInput
+  rate: ModelIntInput
+  volunteerName: ModelStringInput
+  urgent: ModelBooleanInput
+  tags: ModelStringInput
+  and: [ModelRequestConditionInput]
+  or: [ModelRequestConditionInput]
+  not: ModelRequestConditionInput
+}
+
+input CreateRequestInput {
+  id: ID
+  name: String!
+  title: String!
+  description: String!
+  date: AWSDateTime!
+  location: String
+  seniorID: ID!
+  volunteerID: ID
+  status: String!
+  country: String
+  locale: String
+  seniorFeedback: String
+  volunteerFeedback: String
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  picture: String
+  pictures: [String]
+  rate: Int
+  volunteerName: String
+  urgent: Boolean
+  tags: [String]
+}
+
+input UpdateRequestInput {
+  id: ID!
+  name: String
+  title: String
+  description: String
+  date: AWSDateTime
+  location: String
+  seniorID: ID
+  volunteerID: ID
+  status: String
+  country: String
+  locale: String
+  seniorFeedback: String
+  volunteerFeedback: String
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  picture: String
+  pictures: [String]
+  rate: Int
+  volunteerName: String
+  urgent: Boolean
+  tags: [String]
+}
+
+input DeleteRequestInput {
+  id: ID!
+}
+
+type Mutation {
+  createRequest(input: CreateRequestInput!, condition: ModelRequestConditionInput): Request
+  updateRequest(input: UpdateRequestInput!, condition: ModelRequestConditionInput): Request
+  deleteRequest(input: DeleteRequestInput!, condition: ModelRequestConditionInput): Request
+  createResponse(input: CreateResponseInput!, condition: ModelResponseConditionInput): Response
+  updateResponse(input: UpdateResponseInput!, condition: ModelResponseConditionInput): Response
+  deleteResponse(input: DeleteResponseInput!, condition: ModelResponseConditionInput): Response
+  createUser(input: CreateUserInput!, condition: ModelUserConditionInput): User
+  updateUser(input: UpdateUserInput!, condition: ModelUserConditionInput): User
+  deleteUser(input: DeleteUserInput!, condition: ModelUserConditionInput): User
+  createPost(input: CreatePostInput!, condition: ModelPostConditionInput): Post
+  updatePost(input: UpdatePostInput!, condition: ModelPostConditionInput): Post
+  deletePost(input: DeletePostInput!, condition: ModelPostConditionInput): Post
+  createComment(input: CreateCommentInput!, condition: ModelCommentConditionInput): Comment
+  updateComment(input: UpdateCommentInput!, condition: ModelCommentConditionInput): Comment
+  deleteComment(input: DeleteCommentInput!, condition: ModelCommentConditionInput): Comment
+  createReply(input: CreateReplyInput!, condition: ModelReplyConditionInput): Reply
+  updateReply(input: UpdateReplyInput!, condition: ModelReplyConditionInput): Reply
+  deleteReply(input: DeleteReplyInput!, condition: ModelReplyConditionInput): Reply
+}
+
+input ModelSubscriptionRequestFilterInput {
+  id: ModelSubscriptionIDInput
+  name: ModelSubscriptionStringInput
+  title: ModelSubscriptionStringInput
+  description: ModelSubscriptionStringInput
+  date: ModelSubscriptionStringInput
+  location: ModelSubscriptionStringInput
+  seniorID: ModelSubscriptionIDInput
+  volunteerID: ModelSubscriptionIDInput
+  status: ModelSubscriptionStringInput
+  country: ModelSubscriptionStringInput
+  locale: ModelSubscriptionStringInput
+  seniorFeedback: ModelSubscriptionStringInput
+  volunteerFeedback: ModelSubscriptionStringInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  picture: ModelSubscriptionStringInput
+  pictures: ModelSubscriptionStringInput
+  rate: ModelSubscriptionIntInput
+  volunteerName: ModelSubscriptionStringInput
+  urgent: ModelSubscriptionBooleanInput
+  tags: ModelSubscriptionStringInput
+  and: [ModelSubscriptionRequestFilterInput]
+  or: [ModelSubscriptionRequestFilterInput]
+}
+
+type Subscription {
+  onCreateRequest(filter: ModelSubscriptionRequestFilterInput): Request @aws_subscribe(mutations: ["createRequest"])
+  onUpdateRequest(filter: ModelSubscriptionRequestFilterInput): Request @aws_subscribe(mutations: ["updateRequest"])
+  onDeleteRequest(filter: ModelSubscriptionRequestFilterInput): Request @aws_subscribe(mutations: ["deleteRequest"])
+  onCreateResponse(filter: ModelSubscriptionResponseFilterInput): Response @aws_subscribe(mutations: ["createResponse"])
+  onUpdateResponse(filter: ModelSubscriptionResponseFilterInput): Response @aws_subscribe(mutations: ["updateResponse"])
+  onDeleteResponse(filter: ModelSubscriptionResponseFilterInput): Response @aws_subscribe(mutations: ["deleteResponse"])
+  onCreateUser(filter: ModelSubscriptionUserFilterInput): User @aws_subscribe(mutations: ["createUser"])
+  onUpdateUser(filter: ModelSubscriptionUserFilterInput): User @aws_subscribe(mutations: ["updateUser"])
+  onDeleteUser(filter: ModelSubscriptionUserFilterInput): User @aws_subscribe(mutations: ["deleteUser"])
+  onCreatePost(filter: ModelSubscriptionPostFilterInput): Post @aws_subscribe(mutations: ["createPost"])
+  onUpdatePost(filter: ModelSubscriptionPostFilterInput): Post @aws_subscribe(mutations: ["updatePost"])
+  onDeletePost(filter: ModelSubscriptionPostFilterInput): Post @aws_subscribe(mutations: ["deletePost"])
+  onCreateComment(filter: ModelSubscriptionCommentFilterInput): Comment @aws_subscribe(mutations: ["createComment"])
+  onUpdateComment(filter: ModelSubscriptionCommentFilterInput): Comment @aws_subscribe(mutations: ["updateComment"])
+  onDeleteComment(filter: ModelSubscriptionCommentFilterInput): Comment @aws_subscribe(mutations: ["deleteComment"])
+  onCreateReply(filter: ModelSubscriptionReplyFilterInput): Reply @aws_subscribe(mutations: ["createReply"])
+  onUpdateReply(filter: ModelSubscriptionReplyFilterInput): Reply @aws_subscribe(mutations: ["updateReply"])
+  onDeleteReply(filter: ModelSubscriptionReplyFilterInput): Reply @aws_subscribe(mutations: ["deleteReply"])
+}
+
+type ModelResponseConnection {
+  items: [Response]!
+  nextToken: String
+}
+
+input ModelResponseFilterInput {
+  id: ModelIDInput
+  requestID: ModelIDInput
+  volunteerID: ModelIDInput
+  message: ModelStringInput
+  createdAt: ModelStringInput
+  email: ModelStringInput
+  name: ModelStringInput
+  x1: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelResponseFilterInput]
+  or: [ModelResponseFilterInput]
+  not: ModelResponseFilterInput
+}
+
+input ModelResponseConditionInput {
+  requestID: ModelIDInput
+  volunteerID: ModelIDInput
+  message: ModelStringInput
+  createdAt: ModelStringInput
+  email: ModelStringInput
+  name: ModelStringInput
+  x1: ModelStringInput
+  and: [ModelResponseConditionInput]
+  or: [ModelResponseConditionInput]
+  not: ModelResponseConditionInput
+  updatedAt: ModelStringInput
+}
+
+input CreateResponseInput {
+  id: ID
+  requestID: ID!
+  volunteerID: ID!
+  message: String
+  createdAt: AWSDateTime
+  email: String
+  name: String
+  x1: String
+}
+
+input UpdateResponseInput {
+  id: ID!
+  requestID: ID
+  volunteerID: ID
+  message: String
+  createdAt: AWSDateTime
+  email: String
+  name: String
+  x1: String
+}
+
+input DeleteResponseInput {
+  id: ID!
+}
+
+input ModelSubscriptionResponseFilterInput {
+  id: ModelSubscriptionIDInput
+  requestID: ModelSubscriptionIDInput
+  volunteerID: ModelSubscriptionIDInput
+  message: ModelSubscriptionStringInput
+  createdAt: ModelSubscriptionStringInput
+  email: ModelSubscriptionStringInput
+  name: ModelSubscriptionStringInput
+  x1: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionResponseFilterInput]
+  or: [ModelSubscriptionResponseFilterInput]
+}
+
+type ModelUserConnection {
+  items: [User]!
+  nextToken: String
+}
+
+input ModelUserFilterInput {
+  id: ModelIDInput
+  username: ModelStringInput
+  birthdate: ModelStringInput
+  phone_number: ModelStringInput
+  locale: ModelStringInput
+  email: ModelStringInput
+  name: ModelStringInput
+  country: ModelStringInput
+  picture: ModelStringInput
+  role: ModelStringInput
+  description: ModelStringInput
+  rating: ModelIntInput
+  counter: ModelIntInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelUserFilterInput]
+  or: [ModelUserFilterInput]
+  not: ModelUserFilterInput
+}
+
+input ModelUserConditionInput {
+  username: ModelStringInput
+  birthdate: ModelStringInput
+  phone_number: ModelStringInput
+  locale: ModelStringInput
+  email: ModelStringInput
+  name: ModelStringInput
+  country: ModelStringInput
+  picture: ModelStringInput
+  role: ModelStringInput
+  description: ModelStringInput
+  rating: ModelIntInput
+  counter: ModelIntInput
+  and: [ModelUserConditionInput]
+  or: [ModelUserConditionInput]
+  not: ModelUserConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input CreateUserInput {
+  id: ID
+  username: String!
+  birthdate: AWSDate
+  phone_number: AWSPhone
+  locale: String
+  email: AWSEmail
+  name: String
+  country: String
+  picture: AWSURL
+  role: String
+  description: String
+  rating: Int
+  counter: Int
+}
+
+input UpdateUserInput {
+  id: ID!
+  username: String
+  birthdate: AWSDate
+  phone_number: AWSPhone
+  locale: String
+  email: AWSEmail
+  name: String
+  country: String
+  picture: AWSURL
+  role: String
+  description: String
+  rating: Int
+  counter: Int
+}
+
+input DeleteUserInput {
+  id: ID!
+}
+
+input ModelSubscriptionUserFilterInput {
+  id: ModelSubscriptionIDInput
+  username: ModelSubscriptionStringInput
+  birthdate: ModelSubscriptionStringInput
+  phone_number: ModelSubscriptionStringInput
+  locale: ModelSubscriptionStringInput
+  email: ModelSubscriptionStringInput
+  name: ModelSubscriptionStringInput
+  country: ModelSubscriptionStringInput
+  picture: ModelSubscriptionStringInput
+  role: ModelSubscriptionStringInput
+  description: ModelSubscriptionStringInput
+  rating: ModelSubscriptionIntInput
+  counter: ModelSubscriptionIntInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionUserFilterInput]
+  or: [ModelSubscriptionUserFilterInput]
+}
+
+type ModelPostConnection {
+  items: [Post]!
+  nextToken: String
+}
+
+input ModelPostFilterInput {
+  id: ModelIDInput
+  title: ModelStringInput
+  content: ModelStringInput
+  authorID: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  pictures: ModelStringInput
+  likes: ModelIntInput
+  tags: ModelStringInput
+  likedBy: ModelIDInput
+  and: [ModelPostFilterInput]
+  or: [ModelPostFilterInput]
+  not: ModelPostFilterInput
+}
+
+input ModelPostConditionInput {
+  title: ModelStringInput
+  content: ModelStringInput
+  authorID: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  pictures: ModelStringInput
+  likes: ModelIntInput
+  tags: ModelStringInput
+  likedBy: ModelIDInput
+  and: [ModelPostConditionInput]
+  or: [ModelPostConditionInput]
+  not: ModelPostConditionInput
+}
+
+input CreatePostInput {
+  id: ID
+  title: String!
+  content: String!
+  authorID: ID!
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  pictures: [AWSURL]
+  likes: Int
+  tags: [String]
+  likedBy: [ID]
+}
+
+input UpdatePostInput {
+  id: ID!
+  title: String
+  content: String
+  authorID: ID
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  pictures: [AWSURL]
+  likes: Int
+  tags: [String]
+  likedBy: [ID]
+}
+
+input DeletePostInput {
+  id: ID!
+}
+
+input ModelSubscriptionPostFilterInput {
+  id: ModelSubscriptionIDInput
+  title: ModelSubscriptionStringInput
+  content: ModelSubscriptionStringInput
+  authorID: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  pictures: ModelSubscriptionStringInput
+  likes: ModelSubscriptionIntInput
+  tags: ModelSubscriptionStringInput
+  likedBy: ModelSubscriptionIDInput
+  and: [ModelSubscriptionPostFilterInput]
+  or: [ModelSubscriptionPostFilterInput]
+}
+
+type ModelCommentConnection {
+  items: [Comment]!
+  nextToken: String
+}
+
+input ModelCommentFilterInput {
+  id: ModelIDInput
+  content: ModelStringInput
+  postID: ModelIDInput
+  authorID: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelCommentFilterInput]
+  or: [ModelCommentFilterInput]
+  not: ModelCommentFilterInput
+}
+
+input ModelCommentConditionInput {
+  content: ModelStringInput
+  postID: ModelIDInput
+  authorID: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelCommentConditionInput]
+  or: [ModelCommentConditionInput]
+  not: ModelCommentConditionInput
+}
+
+input CreateCommentInput {
+  id: ID
+  content: String!
+  postID: ID!
+  authorID: ID!
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+input UpdateCommentInput {
+  id: ID!
+  content: String
+  postID: ID
+  authorID: ID
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+input DeleteCommentInput {
+  id: ID!
+}
+
+input ModelSubscriptionCommentFilterInput {
+  id: ModelSubscriptionIDInput
+  content: ModelSubscriptionStringInput
+  postID: ModelSubscriptionIDInput
+  authorID: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionCommentFilterInput]
+  or: [ModelSubscriptionCommentFilterInput]
+}
+
+type ModelReplyConnection {
+  items: [Reply]!
+  nextToken: String
+}
+
+input ModelReplyFilterInput {
+  id: ModelIDInput
+  content: ModelStringInput
+  commentID: ModelIDInput
+  authorID: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelReplyFilterInput]
+  or: [ModelReplyFilterInput]
+  not: ModelReplyFilterInput
+}
+
+input ModelReplyConditionInput {
+  content: ModelStringInput
+  commentID: ModelIDInput
+  authorID: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelReplyConditionInput]
+  or: [ModelReplyConditionInput]
+  not: ModelReplyConditionInput
+}
+
+input CreateReplyInput {
+  id: ID
+  content: String!
+  commentID: ID!
+  authorID: ID!
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+input UpdateReplyInput {
+  id: ID!
+  content: String
+  commentID: ID
+  authorID: ID
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+input DeleteReplyInput {
+  id: ID!
+}
+
+input ModelSubscriptionReplyFilterInput {
+  id: ModelSubscriptionIDInput
+  content: ModelSubscriptionStringInput
+  commentID: ModelSubscriptionIDInput
+  authorID: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionReplyFilterInput]
+  or: [ModelSubscriptionReplyFilterInput]
+}
+
+input ModelIDKeyConditionInput {
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  between: [ID]
+  beginsWith: ID
+}

@@ -1,0 +1,423 @@
+/* General styles */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+}
+
+.home-page {
+  text-align: left;
+  position: relative;
+  background-color: #e9ffe0;
+}
+
+/* Header styling */
+.header {
+  background-color: #4CAF50; /* Green header background */
+  color: white;
+  padding: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 100px; /* Increase logo size */
+  height: 100px; /* Increase logo size */
+  margin-right: 10px;
+}
+
+.header h1 {
+  font-size: 3rem; /* Larger font size for CareMate */
+}
+
+.header h2 {
+  font-size: 1.25rem;
+  margin-top: 10px;
+}
+
+.nav-links {
+  display: flex;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #ffeb3b;
+}
+
+/* Intro section */
+.intro-section {
+  position: relative;
+  text-align: center;
+  color: white;
+  overflow: hidden;
+}
+
+.intro-video {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+.intro-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.intro-text h2 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.intro-text p {
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+}
+
+.cta-button {
+  background-color: #6A1B9A;
+  color: white;
+  padding: 15px 30px; /* Increased padding for larger button */
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1.5rem; /* Increased font size */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.cta-button:hover {
+  background-color: #4A148C;
+  transform: scale(1.05);
+}
+
+.cta-button:active {
+  transform: scale(0.95);
+}
+
+/* Description section */
+.description {
+  margin: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.description h2 {
+  color: #6A1B9A;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.large-text {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin: 20px 0;
+}
+
+/* Offer list styling */
+.offer-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.offer-list li {
+  background-color: #f1f1f1;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 10px 0;
+  text-align: left;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+}
+
+.offer-list h3 {
+  color: #4CAF50;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.offer-list p {
+  margin-left: 10px;
+  flex: 1;
+}
+
+/* Testimonials section */
+.testimonials {
+  background-color: #6A1B9A;
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.testimonials h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.testimonial-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.testimonial-item {
+  background-color: #ffffff;
+  color: #6A1B9A;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 10px;
+  max-width: 300px;
+  text-align: left;
+  flex: 1;
+}
+
+.testimonial-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.testimonial-item p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.testimonial-item span {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* How it works section */
+.how-it-works {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.how-it-works h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.step {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 10px;
+  max-width: 250px;
+  text-align: center;
+  flex: 1;
+}
+
+.step-icon {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+.step h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.step p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Button container styling */
+.buttons {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: center;
+  gap: 20px; /* Increased gap between buttons */
+  margin: 20px 0;
+}
+
+/* Button styling */
+.button {
+  background-color: #6A1B9A;
+  color: white;
+  padding: 15px 30px; /* Increased padding for larger button */
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1.5rem; /* Increased font size */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.button:hover {
+  background-color: #4A148C;
+  transform: scale(1.05);
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+/* Emergency Button Styling */
+.emergency-button-container {
+  position: fixed;
+  bottom: 25px; /* Adjust the value as needed to position below the header */
+  left: 25px;
+  z-index: 10;
+}
+
+.emergency-button {
+  background-color: red;
+  color: white;
+  padding: 20px; /* Increased padding for larger button */
+  border: none;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 1.5rem; /* Increased font size */
+  cursor: pointer;
+  width: 80px; /* Increased size */
+  height: 80px; /* Increased size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.2s;
+  overflow: hidden;
+}
+
+.emergency-button:hover {
+  background-color: darkred;
+  transform: scale(1.05);
+}
+
+.emergency-button:active {
+  transform: scale(0.95);
+}
+
+/* Footer styling */
+.footer {
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  position: relative;
+}
+
+.footer nav {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Add gap between footer links */
+}
+
+.footer nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s;
+}
+
+.footer nav a:hover {
+  color: #ffeb3b;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .header h2 {
+    font-size: 1rem;
+    margin-top: 10px;
+  }
+
+  .intro-text h2 {
+    font-size: 2rem;
+  }
+
+  .intro-text p {
+    font-size: 1rem;
+  }
+
+  .description h2,
+  .testimonials h2,
+  .how-it-works h2 {
+    font-size: 1.5rem;
+  }
+
+  .testimonial-item,
+  .step {
+    max-width: 100%;
+    margin: 10px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .header h2 {
+    font-size: 0.8rem;
+    margin-top: 5px;
+  }
+
+  .intro-text h2 {
+    font-size: 1.5rem;
+  }
+
+  .intro-text p {
+    font-size: 0.8rem;
+  }
+
+  .description h2,
+  .testimonials h2,
+  .how-it-works h2 {
+    font-size: 1.2rem;
+  }
+
+  .cta-button,
+  .button {
+    font-size: 1.2rem; /* Adjusted font size for smaller screens */
+    padding: 10px 20px; /* Adjusted padding for smaller screens */
+  }
+
+  .emergency-button {
+    width: 60px; /* Adjusted size for smaller screens */
+    height: 60px; /* Adjusted size for smaller screens */
+    font-size: 1rem; /* Adjusted font size for smaller screens */
+  }
+
+}
