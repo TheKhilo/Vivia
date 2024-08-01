@@ -11,7 +11,7 @@ function AboutPage() {
       <section className="mission-section">
         <h2>Our Mission</h2>
         <p>
-          At CareMate, our mission is to enhance the quality of life for seniors by connecting them with dedicated community volunteers. We strive to foster a sense of belonging and support through meaningful interactions and reliable assistance.
+          At CareConnect, our mission is to enhance the quality of life for seniors by connecting them with dedicated community volunteers. We strive to foster a sense of belonging and support through meaningful interactions and reliable assistance.
         </p>
       </section>
       <section className="vision-section">
