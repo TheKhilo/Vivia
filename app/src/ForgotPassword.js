@@ -1,47 +1,85 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { generateClient } from 'aws-amplify/api';
-import { listPosts } from './graphql/queries';
-import LikeButton from './LikeButton';
-import './ForumPage.css';
+import React, { useState } from 'react';
+import { resetPassword, confirmResetPassword } from 'aws-amplify/auth';
+import { useNavigate } from 'react-router-dom'; // Assuming you are using react-router for navigation
 
-const client = generateClient();
+function ForgotPassword() {
+  const [username, setUsername] = useState('');
+  const [confirmationCode, setConfirmationCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [step, setStep] = useState('requestReset'); // 'requestReset' or 'confirmReset'
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
-const ForumPage = () => {
-  const [posts, setPosts] = useState([]);
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  const fetchPosts = async () => {
+  async function handleResetPassword(username) {
     try {
-      const result = await client.graphql({ query: listPosts });
-      setPosts(result.data.listPosts.items);
+      const output = await resetPassword({ username });
+      handleResetPasswordNextSteps(output);
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      setMessage('Error: ' + error.message);
     }
-  };
+  }
+
+  function handleResetPasswordNextSteps(output) {
+    const { nextStep } = output;
+    switch (nextStep.resetPasswordStep) {
+      case 'CONFIRM_RESET_PASSWORD_WITH_CODE':
+        setStep('confirmReset');
+        break;
+      case 'DONE':
+        setMessage('Successfully reset password.');
+        break;
+      default:
+        setMessage('Unexpected step: ' + nextStep.resetPasswordStep);
+    }
+  }
+
+  async function handleConfirmResetPassword() {
+    try {
+      await confirmResetPassword({ username, confirmationCode, newPassword });
+      setMessage('Password successfully reset.');
+      navigate('/signin'); // Redirect to sign-in page after successful reset
+    } catch (error) {
+      setMessage('Error: ' + error.message);
+    }
+  }
 
   return (
-    <div className="forum-page">
-      <header className="forum-header">
-        <h1>Community Forum</h1>
-        <Link to="/post-request" className="forum-button">Post a Request</Link>
-      </header>
-      <section className="forum-posts">
-        {posts.map(post => (
-          <div key={post.id} className="forum-post">
-            <Link to={`/posts/${post.id}`}>
-              <h2>{post.title}</h2>
-            </Link>
-            <p>{post.content}</p>
-            <LikeButton postId={post.id} likes={post.likes} />
+    <div className="forgot-password-page">
+      <div className="forgot-password-section">
+        {step === 'requestReset' && (
+          <div>
+            <h2>Forgot Password</h2>
+            <input
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <button onClick={() => handleResetPassword(username)}>Reset Password</button>
           </div>
-        ))}
-      </section>
+        )}
+        {step === 'confirmReset' && (
+          <div>
+            <h2>Confirm Password Reset</h2>
+            <input
+              type="text"
+              placeholder="Enter confirmation code"
+              value={confirmationCode}
+              onChange={(e) => setConfirmationCode(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+            <button onClick={handleConfirmResetPassword}>Confirm Reset</button>
+          </div>
+        )}
+        {message && <p>{message}</p>}
+      </div>
     </div>
   );
-};
+}
 
-export default ForumPage;
+export default ForgotPassword;
