@@ -44,13 +44,53 @@ const PostRequest = () => {
     }
   };
 
+  const resizeImage = (file, maxWidth, maxHeight, callback) => {
+    const img = document.createElement('img');
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          callback(blob);
+        }, file.type, 0.8); // Adjust quality as needed
+      };
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setPictures([...pictures, ...files]);
 
-    // Create previews for the selected images
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    setPicturePreviews([...picturePreviews, ...newPreviews]);
+    files.forEach(file => {
+      resizeImage(file, 800, 800, (resizedBlob) => {
+        const previewUrl = URL.createObjectURL(resizedBlob);
+        setPictures(prevPictures => [...prevPictures, { file: resizedBlob, preview: previewUrl }]);
+        setPicturePreviews(prevPreviews => [...prevPreviews, previewUrl]);
+      });
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -72,13 +112,13 @@ const PostRequest = () => {
     // Upload pictures to S3 and get their URLs
     const pictureUrls = await Promise.all(
       pictures.map(async (picture) => {
-        const pictureKey = `${Date.now()}_${picture.name}`;
+        const pictureKey = `${Date.now()}_${picture.file.name}`;
         try {
           const result = await uploadData({
             path: pictureKey,
-            data: picture,
+            data: picture.file,
             options: {
-              contentType: picture.type,
+              contentType: picture.file.type,
             },
           });
           console.log('Succeeded: ', result);

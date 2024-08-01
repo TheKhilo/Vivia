@@ -52,8 +52,50 @@ function SignUpPage() {
     checkCurrentUser();
   }, []);
 
+  const resizeImage = (file, maxWidth, maxHeight, callback) => {
+    const img = document.createElement('img');
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          callback(blob);
+        }, file.type, 0.8); // Adjust quality as needed
+      };
+    };
+    
+    reader.readAsDataURL(file);
+  };
+
   const handleFileChange = (e) => {
-    setProfilePicture(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      resizeImage(file, 500, 500, (resizedBlob) => {
+        setProfilePicture(resizedBlob);
+      });
+    }
   };
 
   const handleCountryChange = (selectedCountry) => {
@@ -152,7 +194,7 @@ function SignUpPage() {
         picture: profilePictureUrl,
         role: role,
         description: 'To be edited', // Add a default description or allow user to add later
-        rating: 5, // Initialize rating to 0
+        rating: 5, // Initialize rating to 5
         counter: 0, // Initialize counter to 0
       };
       await client.graphql({
@@ -173,7 +215,6 @@ function SignUpPage() {
       }
       setError('Error signing up. Please try again.');
     }
-
   };
 
   const countryOptions = Country.getAllCountries().map((country) => ({

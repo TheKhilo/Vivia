@@ -30,9 +30,56 @@ const PostForm = () => {
     }
   };
 
+  const resizeImage = (file, maxWidth, maxHeight, callback) => {
+    const img = document.createElement('img');
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          callback(blob);
+        }, file.type, 0.8); // Adjust quality as needed
+      };
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setPictures(files);
+
+    files.forEach(file => {
+      resizeImage(file, 800, 800, (resizedBlob) => {
+        const previewUrl = URL.createObjectURL(resizedBlob);
+        setPictures(prevPictures => [...prevPictures, { file: resizedBlob, preview: previewUrl }]);
+      });
+    });
+  };
+
+  const handleRemovePhoto = (index) => {
+    setPictures((prevPictures) => prevPictures.filter((_, i) => i !== index));
   };
 
   const handleTagAddition = () => {
@@ -42,40 +89,44 @@ const PostForm = () => {
     }
   };
 
+  const handleTagRemove = (index) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Upload pictures to S3 and get their URLs
     const pictureUrls = await Promise.all(
       pictures.map(async (picture) => {
-        const pictureKey = `${Date.now()}_${picture.name}`;
-        try {
-          const result = await uploadData({
-            path: pictureKey,
-            data: picture,
-            options: {
-              contentType: picture.type,
-            },
-          });
-          console.log('Succeeded: ', result);
-          return `https://app-storage-76daa9bdaba9d-dev.s3.amazonaws.com/${encodeURIComponent(pictureKey)}`;
-        } catch (error) {
-          console.log('Error : ', error);
-          return null;
+        if (picture && picture.file) {
+          const pictureKey = `${Date.now()}_${picture.file.name}`;
+          try {
+            const result = await uploadData({
+              path: pictureKey,
+              data: picture.file,
+              options: {
+                contentType: picture.file.type,
+              },
+            });
+            return `https://app-storage-76daa9bdaba9d-dev.s3.amazonaws.com/${encodeURIComponent(pictureKey)}`;
+          } catch (error) {
+            console.log('Error : ', error);
+            return null;
+          }
         }
+        return null;
       })
     );
 
-    // Filter out any null values from pictureUrls
-    const validPictureUrls = pictureUrls.filter(url => url !== null);
+    const validPictureUrls = pictureUrls.filter((url) => url !== null);
 
     const input = {
       title,
       content,
-      pictures: validPictureUrls, // Use the filtered array here
+      pictures: validPictureUrls,
       likes: 0,
       tags,
-      authorID: currentUserId, // Ensure authorID is set correctly
+      authorID: currentUserId,
     };
 
     try {
@@ -103,12 +154,25 @@ const PostForm = () => {
           onChange={(e) => setContent(e.target.value)}
           className="pr-textarea"
         />
+
         <input
           type="file"
           multiple
           onChange={handleFileChange}
           className="pr-input"
         />
+
+        <div className="pr-photo-thumbnails">
+          {pictures.map((picture, index) => (
+            <div key={index} className="pr-photo-thumbnail">
+              <img src={picture.preview} alt={`Preview ${index}`} className="pr-thumbnail-image" />
+              <button type="button" className="pr-remove-thumbnail" onClick={() => handleRemovePhoto(index)}>
+                &times;
+              </button>
+            </div>
+          ))}
+        </div>
+
         <div className="pr-tag-input">
           <input
             type="text"
@@ -125,13 +189,18 @@ const PostForm = () => {
             Add Tag
           </button>
         </div>
+
         <div className="pr-tags-list">
           {tags.map((tag, index) => (
             <div key={index} className="pr-tag">
               {tag}
+              <button type="button" className="pr-remove-tag" onClick={() => handleTagRemove(index)}>
+                &times;
+              </button>
             </div>
           ))}
         </div>
+
         <button type="submit" className="pr-button">
           Post Request
         </button>

@@ -51,7 +51,7 @@ function ForgotPassword() {
             <h2>Forgot Password</h2>
             <input
               type="text"
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
