@@ -99,73 +99,75 @@ function ProfilePage() {
       console.log(error);
     }
   }
+  const fetchUser = async () => {
+    try {
+      const userInfo1 = await fetchUserAttributes();
+      const response = await client.graphql({
+        query: getUser,
+        variables: { id: userInfo1.email }
+      });
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userInfo1 = await fetchUserAttributes();
-        const response = await client.graphql({
-          query: getUser,
-          variables: { id: userInfo1.email }
-        });
+      const userInfo = response.data.getUser;
 
-        const userInfo = response.data.getUser;
-
-        if (userInfo) {
-          setUser(userInfo);
-          setName(userInfo.name || '');
-          setEmail(userInfo.email || '');
-          setPhoneNumber(userInfo.phone_number || '');
-          setBirthdate(userInfo.birthdate || '');
-          setLocale(userInfo.locale || '');
-          setProfilePicture(userInfo.picture || '');
-          setRole(userInfo.role || '');
-          setCountry(userInfo.country || '');
-          setDescription(userInfo.description || '');
-          setRating(userInfo.rating || '');
-          setCounter(userInfo.counter || '');
-        } else {
-          console.log('User not found');
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        if (error.errors) {
-          console.log('GraphQL Error Details:', error.errors);
-          error.errors.forEach(err => {
-            console.log('GraphQL Error Message:', err.message);
-            console.log('GraphQL Error Path:', err.path);
-            console.log('GraphQL Error Extensions:', err.extensions);
-          });
-        }
+      if (userInfo) {
+        setUser(userInfo);
+        setName(userInfo.name || '');
+        setEmail(userInfo.email || '');
+        setPhoneNumber(userInfo.phone_number || '');
+        setBirthdate(userInfo.birthdate || '');
+        setLocale(userInfo.locale || '');
+        setProfilePicture(userInfo.picture || '');
+        setRole(userInfo.role || '');
+        setCountry(userInfo.country || '');
+        setDescription(userInfo.description || '');
+        setRating(userInfo.rating || '');
+        setCounter(userInfo.counter || '');
+      } else {
+        console.log('User not found');
       }
-    };
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      if (error.errors) {
+        console.log('GraphQL Error Details:', error.errors);
+        error.errors.forEach(err => {
+          console.log('GraphQL Error Message:', err.message);
+          console.log('GraphQL Error Path:', err.path);
+          console.log('GraphQL Error Extensions:', err.extensions);
+        });
+      }
+    }
+  };
+  useEffect(() => {
+    
 
     fetchUser();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       let profilePictureUrl = profilePicture;
-
+  
       if (profilePictureFile) {
         if (profilePicture && profilePicture !== 'https://example.com/default-profile-picture.png') {
           const oldPictureKey = decodeURIComponent(profilePicture.split('/').pop());
           await remove({ path: oldPictureKey });
         }
         const filename = `${email}`;
-        const result = await uploadData({
+        await uploadData({
           path: filename,
           data: profilePictureFile,
           options: {
             level: 'public',
             contentType: profilePictureFile.type,
           },
-        }).result;
-        profilePictureUrl = `https://app-storage-76daa9bdaba9d-dev.s3.amazonaws.com/${encodeURIComponent(filename)}`;
+        });
+  
+        // Add cache-busting query parameter
+        profilePictureUrl = `https://app-storage-76daa9bdaba9d-dev.s3.amazonaws.com/${encodeURIComponent(filename)}?t=${new Date().getTime()}`;
       }
-
+  
       const updatedAttributes = {
         id: email,
         name,
@@ -176,17 +178,19 @@ function ProfilePage() {
         country: country,
         description: description,
       };
-
+  
       await client.graphql({
         query: updateUser,
         variables: { input: updatedAttributes }
       });
+      fetchUser();
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Error updating profile. Please try again.');
     }
   };
+  
 
   const getCountryOptions = () => {
     return Country.getAllCountries().map((country) => ({
