@@ -24,6 +24,7 @@ function ViewResponses() {
   const [feedback, setFeedback] = useState('');
   const [rating, setRating] = useState(1);
   const [helpReceived, setHelpReceived] = useState(null);
+  const [daysFromNow, setDaysFromNow] = useState('');
   const client = generateClient();
 
   useEffect(() => {
@@ -56,7 +57,6 @@ function ViewResponses() {
     }
   };
   
-
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -97,9 +97,18 @@ function ViewResponses() {
     setCurrentRequest(request);
     setUpdatedRequest({
       ...request,
-      date: new Date(request.date).toISOString().slice(0, 16) // Convert to datetime-local format
+      date: new Date(request.date).toISOString().slice(0, 16), // Convert to datetime-local format
+      urgent: request.urgent || false, // Initialize urgent
     });
+    setDaysFromNow(calculateDaysFromNow(new Date(request.date)));
     setEditRequestModalIsOpen(true);
+  };
+
+  const calculateDaysFromNow = (date) => {
+    const currentDate = new Date();
+    const diffTime = date - currentDate;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : '';
   };
 
   const closeEditRequestModal = () => {
@@ -108,8 +117,24 @@ function ViewResponses() {
   };
 
   const handleUpdateRequestChange = (e) => {
-    const { name, value } = e.target;
-    setUpdatedRequest({ ...updatedRequest, [name]: value });
+    const { name, value, type, checked } = e.target;
+    if (type === 'checkbox') {
+      setUpdatedRequest({ ...updatedRequest, [name]: checked });
+    } else {
+      setUpdatedRequest({ ...updatedRequest, [name]: value });
+    }
+  };
+
+  const handleDaysChange = (e) => {
+    const days = e.target.value;
+    setDaysFromNow(days);
+    if (days) {
+      const newDate = new Date();
+      newDate.setDate(newDate.getDate() + parseInt(days, 10));
+      setUpdatedRequest({ ...updatedRequest, date: newDate.toISOString().slice(0, 16) });
+    } else {
+      setUpdatedRequest({ ...updatedRequest, date: '' });
+    }
   };
 
   const handleUpdateRequest = async () => {
@@ -129,7 +154,8 @@ function ViewResponses() {
         'locale',
         'seniorFeedback',
         'volunteerFeedback',
-        'picture'
+        'picture',
+        'urgent'
       ];
 
       // Filter out any fields that are not allowed
@@ -172,7 +198,6 @@ function ViewResponses() {
     setRating(1);
   };
   
-
   const handleCloseRequestChange = (e) => {
     const { name, value } = e.target;
     if (name === 'rating') {
@@ -269,180 +294,182 @@ function ViewResponses() {
       }
     }
   };
-  
-  
 
- return (
-  <div className="cr-page">
-    <header className="cr-header">
-      <h1 className="cr-title">Responses</h1>
-      <nav className="cr-nav">
-        <Link to="/forum" className="cr-nav-button">
-          Go to Community Forum
-        </Link>
-        <Link to="/requests" className="cr-nav-button">
-          Go to Community Requests
-        </Link>
-        <Link to="/profile" className="cr-nav-button">
-          View Profile
-        </Link>
-        <button onClick={handleSignOut} className="cr-signout-button">
-          Sign Out
-        </button>
-      </nav>
-    </header>
-    <main className="cr-main">
-      {requests
-        .sort((a, b) => (a.status === 'open' && b.status !== 'open' ? -1 : 1))
-        .map((request) => (
-          <div
-            key={request.id}
-            className="cr-request-item"
-            style={{
-              backgroundColor: request.status === 'closed' 
-                ? 'lightgreen' 
-                : (request.status === 'uncomplete' ? '#ffcccb' : 'white')
-            }}
-          >
-            <h3>{request.title}</h3>
-            <p>{request.description}</p>
-            <p>{new Date(request.date).toLocaleString()}</p>
-            <p>{request.location}</p>
-            <p>{request.country}</p>
-            <p>{request.locale}</p>
-            {request.updatedAt && <p>Updated at: {new Date(request.updatedAt).toLocaleString()}</p>}
-            {request.pictures && Array.isArray(request.pictures) && (
-              <div className="request-pictures">
-                {request.pictures.map((pic, index) => (
-                  <img key={index} src={pic} alt={`Request picture ${index + 1}`} className="request-picture" />
-                ))}
-              </div>
-            )}
-            {request.status === 'open' && (
-              <>
-                <button onClick={() => openEditRequestModal(request)}>Edit Request</button>
-                <button onClick={() => openCloseRequestModal(request)}>Close Request</button>
-              </>
-            )}
-            <h4>Responses:</h4>
-            {request.status === 'open' ? (
-              <ul>
-                {responses[request.id] && responses[request.id].length > 0 ? (
-                  responses[request.id].map((response) => (
-                    <li key={response.id} className="cr-response-item">
-                      <div className="cr-response-content">
-                        <div>
-                          <p>
-                            Profile: <span onClick={() => handleProfileClick(response.email)} className="cr-profile-link">{response.name}</span>
-                          </p>
-                          <p>Message: {response.message}</p>
-                          <p>Sent At: {new Date(response.createdAt).toLocaleString()}</p>
+  return (
+    <div className="cr-page">
+      <header className="cr-header">
+        <h1 className="cr-title">Responses</h1>
+        <nav className="cr-nav">
+          <Link to="/forum" className="cr-nav-button">
+            Go to Community Forum
+          </Link>
+          <Link to="/requests" className="cr-nav-button">
+            Go to Community Requests
+          </Link>
+          <button onClick={handleSignOut} className="cr-signout-button">
+            Sign Out
+          </button>
+        </nav>
+      </header>
+      <main className="cr-main">
+        {requests
+          .sort((a, b) => (a.status === 'open' && b.status !== 'open' ? -1 : 1))
+          .map((request) => (
+            <div
+              key={request.id}
+              className="cr-request-item"
+              style={{
+                backgroundColor: request.status === 'closed' 
+                  ? 'lightgreen' 
+                  : (request.status === 'uncomplete' ? '#ffcccb' : 'white')
+              }}
+            >
+              <h3>{request.title}</h3>
+              <p>{request.description}</p>
+              <p>{new Date(request.date).toLocaleString()}</p>
+              <p>{request.location}</p>
+              <p>{request.country}</p>
+              <p>{request.locale}</p>
+              {request.updatedAt && <p>Updated at: {new Date(request.updatedAt).toLocaleString()}</p>}
+              {request.pictures && Array.isArray(request.pictures) && (
+                <div className="request-pictures">
+                  {request.pictures.map((pic, index) => (
+                    <img key={index} src={pic} alt={`Request picture ${index + 1}`} className="request-picture" />
+                  ))}
+                </div>
+              )}
+              {request.status === 'open' && (
+                <>
+                  <button onClick={() => openEditRequestModal(request)}>Edit Request</button>
+                  <button onClick={() => openCloseRequestModal(request)}>Close Request</button>
+                </>
+              )}
+              <h4>Responses:</h4>
+              {request.status === 'open' ? (
+                <ul>
+                  {responses[request.id] && responses[request.id].length > 0 ? (
+                    responses[request.id].map((response) => (
+                      <li key={response.id} className="cr-response-item">
+                        <div className="cr-response-content">
+                          <div>
+                            <p>
+                              Profile: <span onClick={() => handleProfileClick(response.email)} className="cr-profile-link">{response.name}</span>
+                            </p>
+                            <p>Message: {response.message}</p>
+                            <p>Sent At: {new Date(response.createdAt).toLocaleString()}</p>
+                          </div>
+                          <button onClick={() => handleChooseVolunteer(request.id, response.volunteerID, response.name)}>Choose</button>
                         </div>
-                        <button onClick={() => handleChooseVolunteer(request.id, response.volunteerID, response.name)}>Choose</button>
-                      </div>
-                    </li>
-                  ))
-                ) : (
-                  <li>No responses yet</li>
-                )}
-              </ul>
-            ) : (
-              request.volunteerID ? (
-                <p>Volunteer: {request.volunteerName}</p>
+                      </li>
+                    ))
+                  ) : (
+                    <li>No responses yet</li>
+                  )}
+                </ul>
               ) : (
-                <p>No responses available for closed requests.</p>
-              )
-            )}
+                request.volunteerID ? (
+                  <p>Volunteer: {request.volunteerName}</p>
+                ) : (
+                  <p>No responses available for closed requests.</p>
+                )
+              )}
+            </div>
+        ))}
+      </main>
+      {showModal && <ProfileModal user={selectedUser} onClose={() => setShowModal(false)} />}
+      {editRequestModalIsOpen && (
+        <Modal
+          isOpen={editRequestModalIsOpen}
+          onRequestClose={closeEditRequestModal}
+          contentLabel="Edit Request"
+          className="edit-request-modal"
+          overlayClassName="edit-request-modal-overlay"
+        >
+          <h2>Edit Request</h2>
+          <label>
+            Title:
+            <input
+              type="text"
+              name="title"
+              value={updatedRequest.title}
+              onChange={handleUpdateRequestChange}
+            />
+          </label>
+          <label>
+            Description:
+            <textarea
+              name="description"
+              value={updatedRequest.description}
+              onChange={handleUpdateRequestChange}
+            />
+          </label>
+          <label htmlFor="daysFromNow" className="pr-help-label">You would like to receive help in the next - days:</label>
+          <input
+            id="daysFromNow"
+            type="number"
+            placeholder="Number of days"
+            value={daysFromNow}
+            onChange={handleDaysChange}
+            className="pr-input"
+          />
+          <div className="edit-urgent-checkbox">
+            <label>Mark as urgent: </label>
+            <input
+              type="checkbox"
+              name="urgent"
+              checked={updatedRequest.urgent}
+              onChange={handleUpdateRequestChange}
+            />
           </div>
-      ))}
-    </main>
-    {showModal && <ProfileModal user={selectedUser} onClose={() => setShowModal(false)} />}
-    {editRequestModalIsOpen && (
-      <Modal
-        isOpen={editRequestModalIsOpen}
-        onRequestClose={closeEditRequestModal}
-        contentLabel="Edit Request"
-        className="edit-request-modal"
-        overlayClassName="edit-request-modal-overlay"
-      >
-        <h2>Edit Request</h2>
-        <label>
-          Title:
-          <input
-            type="text"
-            name="title"
-            value={updatedRequest.title}
-            onChange={handleUpdateRequestChange}
-          />
-        </label>
-        <label>
-          Description:
-          <textarea
-            name="description"
-            value={updatedRequest.description}
-            onChange={handleUpdateRequestChange}
-          />
-        </label>
-        <label>
-          Date:
-          <input
-            type="datetime-local"
-            name="date"
-            value={updatedRequest.date}
-            onChange={handleUpdateRequestChange}
-          />
-        </label>
-        <button onClick={handleUpdateRequest}>Save Changes</button>
-        <button onClick={closeEditRequestModal}>Cancel</button>
-      </Modal>
-    )}
-    {closeRequestModalIsOpen && (
-      <Modal
-        isOpen={closeRequestModalIsOpen}
-        onRequestClose={closeCloseRequestModal}
-        contentLabel="Close Request"
-        className="close-request-modal"
-        overlayClassName="close-request-modal-overlay"
-      >
-        <h2>Close Request</h2>
-        <h3>Volunteer: {currentRequest.volunteerName}</h3>
-        <label>
-          Did you receive help?
-          <select name="helpReceived" value={helpReceived ? 'yes' : 'no'} onChange={handleCloseRequestChange}>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </label>
-        {helpReceived !== null && helpReceived && (
-          <>
-            <label>
-              Feedback:
-              <textarea
-                name="feedback"
-                value={feedback}
-                onChange={handleCloseRequestChange}
-              />
-            </label>
-            <label>
-              Rating:
-              <select name="rating" value={rating} onChange={handleCloseRequestChange}>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-              </select>
-            </label>
-          </>
-        )}
-        <button onClick={handleCloseRequest}>Submit Feedback and Close</button>
-        <button onClick={closeCloseRequestModal}>Cancel</button>
-      </Modal>
-    )}
-  </div>
-);
+          <button onClick={handleUpdateRequest}>Save Changes</button>
+          <button onClick={closeEditRequestModal}>Cancel</button>
+        </Modal>
+      )}
+      {closeRequestModalIsOpen && (
+        <Modal
+          isOpen={closeRequestModalIsOpen}
+          onRequestClose={closeCloseRequestModal}
+          contentLabel="Close Request"
+          className="close-request-modal"
+          overlayClassName="close-request-modal-overlay"
+        >
+          <h2>Close Request</h2>
+          <h3>Volunteer: {currentRequest.volunteerName}</h3>
+          <label>
+            Did you receive help?
+            <select name="helpReceived" value={helpReceived ? 'yes' : 'no'} onChange={handleCloseRequestChange}>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+          {helpReceived !== null && helpReceived && (
+            <>
+              <label>
+                Feedback:
+                <textarea
+                  name="feedback"
+                  value={feedback}
+                  onChange={handleCloseRequestChange}
+                />
+              </label>
+              <label>
+                Rating:
+                <select name="rating" value={rating} onChange={handleCloseRequestChange}>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </label>
+            </>
+          )}
+          <button onClick={handleCloseRequest}>Submit Feedback and Close</button>
+          <button onClick={closeCloseRequestModal}>Cancel</button>
+        </Modal>
+      )}
+    </div>
+  );
 }
+
 export default ViewResponses;
-
-
-

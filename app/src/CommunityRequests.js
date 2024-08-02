@@ -142,21 +142,6 @@ function CommunityRequests() {
           <Link to="/leaderboard" className="community-nav-button">
             Leaderboard
           </Link>
-          {role === 'volunteer' && (
-            <Link to="/volunteer-responses" className="community-nav-button">
-              Responses
-            </Link>
-          )}
-          {role === 'senior' && (
-            <Link to="/senior-responses" className="community-nav-button">
-              Responses
-            </Link>
-          )}
-          {role !== 'volunteer' && (
-            <Link to="/post-request" className="community-nav-button">
-              Post a Request
-            </Link>
-          )}
           <Link to="/profile" className="community-nav-button">
             View Profile
           </Link>
@@ -166,6 +151,23 @@ function CommunityRequests() {
         </nav>
       </header>
       <main className="community-main">
+      <div className="community-actions">
+          {role === 'volunteer' && (
+            <Link to="/volunteer-responses" className="community-action-button">
+              Responses
+            </Link>
+          )}
+          {role === 'senior' && (
+            <Link to="/senior-responses" className="community-action-button">
+              Responses
+            </Link>
+          )}
+          {role !== 'volunteer' && (
+            <Link to="/post-request" className="community-action-button">
+              Post a Request
+            </Link>
+          )}
+        </div>
         <div className="community-filters">
           <label>
             Urgent:

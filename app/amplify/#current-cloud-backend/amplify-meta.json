@@ -52,12 +52,12 @@
         "IdentityPoolName": "appfbcd3835_identitypool_fbcd3835__dev",
         "UserPoolName": "appfbcd3835_userpool_fbcd3835"
       },
-      "lastPushTimeStamp": "2024-07-28T15:01:15.594Z",
+      "lastPushTimeStamp": "2024-08-01T19:23:54.115Z",
       "providerMetadata": {
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/auth/appfbcd3835-cloudformation-template.json",
         "logicalId": "authappfbcd3835"
       },
-      "lastPushDirHash": "fdcADVS0kxPHuxXbBvzfh7c9u94="
+      "lastPushDirHash": "BymShTnDSSVA6OLBVGKVHcg0N5g="
     }
   },
   "hosting": {
@@ -66,11 +66,12 @@
       "service": "amplifyhosting",
       "type": "manual",
       "output": {},
-      "lastPushTimeStamp": "2024-07-28T15:01:15.601Z",
+      "lastPushTimeStamp": "2024-08-01T19:23:54.115Z",
       "providerMetadata": {
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/hosting/amplifyhosting-template.json",
         "logicalId": "hostingamplifyhosting"
-      }
+      },
+      "lastPushDirHash": "3oVtih31V73l8/MO1dXTXrkoTLM="
     }
   },
   "storage": {
@@ -78,7 +79,7 @@
       "service": "S3",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
-      "lastPushTimeStamp": "2024-07-28T15:01:15.639Z",
+      "lastPushTimeStamp": "2024-08-01T19:23:54.115Z",
       "providerMetadata": {
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/storage/cloudformation-template.json",
         "logicalId": "storages3appstorage76daa9bd"
@@ -87,7 +88,7 @@
         "BucketName": "app-storage-76daa9bdaba9d-dev",
         "Region": "us-east-1"
       },
-      "lastPushDirHash": "UfUHXkfTFgANUelY7qYoxmgCX0w="
+      "lastPushDirHash": "iYm0PIwMhMkpVQvYCbO+BK5I5CE="
     }
   },
   "api": {
@@ -126,12 +127,12 @@
         "GraphQLAPIEndpointOutput": "https://55mj2v3qynbpnjceq2zf5ipcve.appsync-api.us-east-1.amazonaws.com/graphql",
         "GraphQLAPIKeyOutput": "da2-oh3hnnmt6nerdfrpxz63mhwtim"
       },
-      "lastPushTimeStamp": "2024-07-28T15:01:21.343Z",
+      "lastPushTimeStamp": "2024-08-01T19:23:54.115Z",
       "providerMetadata": {
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/api/cloudformation-template.json",
         "logicalId": "apiapp"
       },
-      "lastPushDirHash": "kaMG0U3JaIduQwIBiGNulFWFi5s="
+      "lastPushDirHash": "2z6gXKY+2pTsi1TjPd5/EqMoPPs="
     }
   }
 }

@@ -218,12 +218,13 @@ const ForumPage = () => {
         <h1>Community Forum</h1>
         <div className="header-buttons">
           <Link to="/requests" className="community-nav-button">Go to Community Requests</Link>
-          <Link to="/post-form" className="forum-button">Post To Forum</Link>
           <Link to="/leaderboard" className="community-nav-button">Leaderboard</Link>
           <Link to="/profile" className="community-nav-button">View Profile</Link>
           <button onClick={handleSignOut} className="community-signout-button">Sign Out</button>
         </div>
       </header>
+
+      
       <div className="tag-filter">
         <input
           type="text"
@@ -232,6 +233,7 @@ const ForumPage = () => {
           onChange={(e) => setFilterTag(e.target.value)}
           className="tag-input"
         />
+        <Link to="/post-form" className="forum-button">Post To Forum</Link>
       </div>
       <section className="forum-posts">
         {filteredPosts.map(post => (

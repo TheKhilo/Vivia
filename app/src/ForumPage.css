@@ -234,3 +234,38 @@ button:hover {
   border-color: #4CAF50;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* Container for tag filter and post button */
+.tag-filter-and-post {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  margin: 20px auto;
+}
+
+.tag-input {
+  flex: 1;
+  padding: 10px;
+  font-size: 1.2rem;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  outline: none;
+  margin-right: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.forum-button {
+  background-color: #6A1B9A;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.forum-button:hover {
+  background-color: #4A148C;
+}

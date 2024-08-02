@@ -70,9 +70,6 @@ const VolunteerResponses = () => {
           <Link to="/requests" className="vr-nav-button">
             Go to Community Requests
           </Link>
-          <Link to="/profile" className="vr-nav-button">
-            View Profile
-          </Link>
           <button onClick={handleSignOut} className="vr-signout-button">
             Sign Out
           </button>
