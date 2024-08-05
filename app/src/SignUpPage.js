@@ -10,6 +10,8 @@ import { createUser } from './graphql/mutations';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { Link } from 'react-router-dom';
+
 
 async function handleAutoSignIn() {
   try {
@@ -322,6 +324,9 @@ function SignUpPage() {
           <button type="submit">Sign Up</button>
           {error && <p className="error">{error}</p>}
         </form>
+        <Link to='/signin' className="link_to_signin">
+          Already have an account? Sign in
+        </Link>       
       </section>
     </div>
   );
