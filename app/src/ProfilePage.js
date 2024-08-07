@@ -32,7 +32,7 @@ function ProfilePage() {
 
   const handleDeleteUser = async () => {
     try {
-      const userID = user.sub;
+      const userID = user.email;
 
       // Function to delete all requests by seniorID
       const deleteRequestsBySeniorID = async (seniorID) => {
@@ -47,35 +47,66 @@ function ProfilePage() {
 
       // Function to delete all responses by volunteerID
       const deleteResponsesByVolunteerID = async (volunteerID) => {
-        const { data } = await client.graphql({
-          query: responsesByVolunteerIDAndId,
-          variables: { volunteerID },
-        });
-        for (const response of data.listResponsesByVolunteerID.items) {
-          await client.graphql({
-            query: deleteResponse,
-            variables: { input: { id: response.id } },
+        try {
+          const { data } = await client.graphql({
+            query: responsesByVolunteerIDAndId,
+            variables: { volunteerID },
           });
+      
+          // Check if the expected data structure exists
+          const responses = data?.responsesByVolunteerIDAndId?.items || [];
+      
+          if (responses.length > 0) {
+            // Iterate and delete each response
+            for (const response of responses) {
+              await client.graphql({
+                query: deleteResponse,
+                variables: { input: { id: response.id } },
+              });
+            }
+          } else {
+            console.warn('No responses found for the provided volunteer ID.');
+          }
+        } catch (error) {
+          console.error('Error deleting responses by volunteer ID:', error);
         }
       };
+      
 
       // Function to delete a request and its responses
       const deleteRequestAndResponses = async (requestID) => {
-        const { data } = await client.graphql({
-          query: responsesByRequestIDAndId,
-          variables: { requestID },
-        });
-        for (const response of data.listResponsesByRequestID.items) {
-          await client.graphql({
-            query: deleteResponse,
-            variables: { input: { id: response.id } },
+        try {
+          const { data } = await client.graphql({
+            query: responsesByRequestIDAndId,
+            variables: { requestID },
           });
+      
+          // Check if the expected data structure exists
+          const responses = data?.responsesByRequestIDAndId?.items || [];
+      
+          if (responses.length > 0) {
+            // Iterate and delete each response
+            for (const response of responses) {
+              await client.graphql({
+                query: deleteResponse,
+                variables: { input: { id: response.id } },
+              });
+            }
+          } else {
+            console.warn('No responses found for the provided request ID.');
+          }
+      
+          // Proceed to delete the request after deleting responses
+          await client.graphql({
+            query: deleteRequest,
+            variables: { input: { id: requestID } },
+          });
+      
+        } catch (error) {
+          console.error('Error deleting request and responses:', error);
         }
-        await client.graphql({
-          query: deleteRequest,
-          variables: { input: { id: requestID } },
-        });
       };
+      
 
       if (role === 'senior') {
         await deleteRequestsBySeniorID(userID);

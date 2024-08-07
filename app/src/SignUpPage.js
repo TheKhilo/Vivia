@@ -12,7 +12,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Link } from 'react-router-dom';
 
-
 async function handleAutoSignIn() {
   try {
     await autoSignIn();
@@ -23,7 +22,7 @@ async function handleAutoSignIn() {
 }
 
 function SignUpPage() {
-  const [isSenior, setIsSenior] = useState(true);
+  const [isSenior, setIsSenior] = useState(null); // Changed to null to track if selection is made
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -114,6 +113,12 @@ function SignUpPage() {
 
     // Clear previous error message
     setError('');
+
+    // Validate role selection
+    if (isSenior === null) {
+      setError('Please select whether you are a Senior or a Volunteer.');
+      return;
+    }
 
     // Validate phone number format
     const formatPhoneNumber = (phoneNumber, countryCode) => {
@@ -235,10 +240,10 @@ function SignUpPage() {
     <div className="signup-page">
       <section className="signup-section">
         <div className="toggle-buttons">
-          <button onClick={() => setIsSenior(true)} className={isSenior ? 'active' : ''}>
+          <button onClick={() => setIsSenior(true)} className={isSenior === true ? 'active' : ''}>
             Senior
           </button>
-          <button onClick={() => setIsSenior(false)} className={!isSenior ? 'active' : ''}>
+          <button onClick={() => setIsSenior(false)} className={isSenior === false ? 'active' : ''}>
             Volunteer
           </button>
         </div>

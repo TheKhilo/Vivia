@@ -16,7 +16,6 @@ function ConfirmSignUpPage() {
 
     try {
       await confirmSignUp({username, confirmationCode});
-      alert('Sign-up confirmed successfully!');
       await signOut();
       const user = await signIn({ username, password });
       

@@ -97,7 +97,6 @@ html, body {
   border-radius: 10px;
   box-shadow: var(--main-box-shadow);
   padding: 20px;
-  margin: 20px;
   text-align: left;
   font-size: 1.2rem; /* Increase font size */
 }

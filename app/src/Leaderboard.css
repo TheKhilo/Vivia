@@ -129,3 +129,16 @@ body {
     }
   }
   
+  .back-button {
+  background-color: #4CAF50;
+  color:#6A1B9A;  ;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #45a049;
+}

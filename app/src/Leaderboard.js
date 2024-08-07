@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { listUsers } from './graphql/queries';
 import { generateClient } from 'aws-amplify/api';
-
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './Leaderboard.css';
 
 const Leaderboard = () => {
   const [volunteers, setVolunteers] = useState([]);
   const client = generateClient();
+  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     fetchVolunteers();
@@ -15,7 +16,7 @@ const Leaderboard = () => {
   const fetchVolunteers = async () => {
     try {
       const filter = { role: { eq: "volunteer" } };
-      const { data } = await client.graphql({query:listUsers, variables:{filter },});
+      const { data } = await client.graphql({ query: listUsers, variables: { filter } });
       const sortedVolunteers = data.listUsers.items.sort((a, b) => {
         if (b.rating === a.rating) {
           return b.counter - a.counter;
@@ -32,6 +33,9 @@ const Leaderboard = () => {
     <div className="leaderboard-page">
       <header className="leaderboard-header">
         <h1 className="leaderboard-title">Volunteer Leaderboard</h1>
+        <button onClick={() => navigate('/community-requests')} className="back-button"> {/* Add the button here */}
+          Back to Community Requests
+        </button>
       </header>
       <main className="leaderboard-main">
         <ul className="leaderboard-list">

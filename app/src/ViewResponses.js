@@ -8,6 +8,7 @@ import './ViewResponses.css';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import ProfileModal from './ProfileModal';
 import Modal from 'react-modal';
+import ReactStars from "react-rating-stars-component";
 
 Modal.setAppElement('#root');
 
@@ -42,7 +43,6 @@ function ViewResponses() {
       const requests = result.data.requestsBySeniorIDAndId.items;
       setRequests(requests);
   
-      // Fetch responses for each request
       const responsesData = {};
       await Promise.all(requests.map(async (request) => {
         const responseResult = await client.graphql({
@@ -86,19 +86,20 @@ function ViewResponses() {
         query: updateRequest,
         variables: { input: { id: requestId, volunteerID: volunteerId, volunteerName } }
       });
-      fetchRequests(); // Refresh the requests after updating
-      alert('Volunteer chosen successfully! \nGo ahead, call him!');
+      fetchRequests(); 
+      alert(`Volunteer chosen successfully! \nYou can call ${volunteerName} now!`);
     } catch (error) {
       console.error('Error choosing volunteer:', error);
     }
   };
+  
 
   const openEditRequestModal = (request) => {
     setCurrentRequest(request);
     setUpdatedRequest({
       ...request,
-      date: new Date(request.date).toISOString().slice(0, 16), // Convert to datetime-local format
-      urgent: request.urgent || false, // Initialize urgent
+      date: new Date(request.date).toISOString().slice(0, 16), 
+      urgent: request.urgent || false, 
     });
     setDaysFromNow(calculateDaysFromNow(new Date(request.date)));
     setEditRequestModalIsOpen(true);
@@ -139,7 +140,6 @@ function ViewResponses() {
 
   const handleUpdateRequest = async () => {
     try {
-      // Define the allowed fields in the UpdateRequestInput type
       const allowedFields = [
         'id',
         'name',
@@ -158,7 +158,6 @@ function ViewResponses() {
         'urgent'
       ];
 
-      // Filter out any fields that are not allowed
       const formattedRequest = Object.keys(updatedRequest)
         .filter(key => allowedFields.includes(key))
         .reduce((obj, key) => {
@@ -171,7 +170,7 @@ function ViewResponses() {
         variables: { input: formattedRequest }
       });
       closeEditRequestModal();
-      fetchRequests(); // Refresh the requests after updating
+      fetchRequests();
     } catch (error) {
       console.error('Error updating request:', error);
     }
@@ -186,7 +185,7 @@ function ViewResponses() {
     setCurrentRequest(request);
     setHelpReceived(null);
     setFeedback('');
-    setRating(1); // Set default rating to 1
+    setRating(1);
     setCloseRequestModalIsOpen(true);
   };
   
@@ -219,7 +218,6 @@ function ViewResponses() {
   
       const { id, volunteerID } = currentRequest;
   
-      // Validate rating value
       const parsedRating = parseInt(rating, 10);
       if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
         console.error('Invalid rating value:', rating);
@@ -228,7 +226,6 @@ function ViewResponses() {
       }
   
       if (helpReceived) {
-        // Update the request with the senior's feedback and status
         await client.graphql({
           query: updateRequest,
           variables: {
@@ -241,7 +238,6 @@ function ViewResponses() {
           }
         });
   
-        // Fetch the volunteer's current data
         const volunteer = await client.graphql({
           query: getUser,
           variables: { id: volunteerID }
@@ -252,7 +248,6 @@ function ViewResponses() {
           ? ((volunteerData.rating * volunteerData.counter) + parsedRating) / (volunteerData.counter + 1)
           : parsedRating);
         const newRateCount = (volunteerData.counter || 0) + 1;
-        // Update the volunteer's profile with the new rating
         await client.graphql({
           query: updateUser,
           variables: {
@@ -264,7 +259,6 @@ function ViewResponses() {
           }
         });
       } else {
-        // Update the request status to 'uncomplete'
         await client.graphql({
           query: updateRequest,
           variables: {
@@ -277,14 +271,12 @@ function ViewResponses() {
       }
   
       closeCloseRequestModal();
-      fetchRequests(); // Refresh the requests after updating
+      fetchRequests();
     } catch (error) {
       console.error('Error closing request:', error);
   
-      // Display a user-friendly error message
       alert(`An error occurred while closing the request: ${error.message || 'Unknown error'}. Please try again.`);
   
-      // Log detailed error information
       if (error.errors) {
         error.errors.forEach(err => {
           console.error('GraphQL Error Message:', err.message);
@@ -454,13 +446,13 @@ function ViewResponses() {
               </label>
               <label>
                 Rating:
-                <select name="rating" value={rating} onChange={handleCloseRequestChange}>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </select>
+                <ReactStars
+                  count={5}
+                  value={rating}
+                  onChange={(newRating) => setRating(newRating)}
+                  size={24}
+                  activeColor="#ffd700"
+                />
               </label>
             </>
           )}
