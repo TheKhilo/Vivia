@@ -322,6 +322,7 @@ function ViewResponses() {
               <p>{request.location}</p>
               <p>{request.country}</p>
               <p>{request.locale}</p>
+              <p>Chosen Volunteer: {request.volunteerName || "None"}</p>
               {request.updatedAt && <p>Updated at: {new Date(request.updatedAt).toLocaleString()}</p>}
               {request.pictures && Array.isArray(request.pictures) && (
                 <div className="request-pictures">
