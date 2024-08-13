@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { uploadData } from 'aws-amplify/storage';
 import './PostRequest.css';
 import { getUser } from './graphql/queries';
+import SpeechToText from './SpeechToText'; // Import the SpeechToText component
 
 const client = generateClient();
 
@@ -19,19 +20,21 @@ const PostRequest = () => {
   const [tagInput, setTagInput] = useState('');
   const [pictures, setPictures] = useState([]);
   const [picturePreviews, setPicturePreviews] = useState([]);
+  const [transcribedText, setTranscribedText] = useState(''); // Add state for transcribed text
   const navigate = useNavigate();
 
   const handleDaysChange = (e) => {
     const days = e.target.value;
     setDaysFromNow(days);
     if (days) {
-      const newDate = new Date();
-      newDate.setDate(newDate.getDate() + parseInt(days, 10));
-      setDate(newDate.toISOString().slice(0, 16)); // Set the date in the format yyyy-MM-ddThh:mm
+        const newDate = new Date();
+        newDate.setDate(newDate.getDate() + parseInt(days, 10));
+        setDate(newDate.toISOString()); // Set the date in ISO string format
     } else {
-      setDate('');
+        setDate('');
     }
-  };
+};
+
 
   const handleDelete = (i) => {
     setTags(tags.filter((tag, index) => index !== i));
@@ -92,13 +95,22 @@ const PostRequest = () => {
       });
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Ensure `date` is a valid date before calling `toISOString()`
+    const dateISO = date ? new Date(date).toISOString() : '';
+
+    // Check if dateISO is a valid ISO string
+    if (isNaN(Date.parse(dateISO))) {
+        console.error('Invalid date format');
+        return;
+    }
+
     const user1 = await fetchUserAttributes();
     const response = await client.graphql({
-      query: getUser,
-      variables: { id: user1.email }
+        query: getUser,
+        variables: { id: user1.email }
     });
     const user = response.data.getUser;
     const seniorID = user.email; // or user.attributes.sub
@@ -111,54 +123,55 @@ const PostRequest = () => {
 
     // Upload pictures to S3 and get their URLs
     const pictureUrls = await Promise.all(
-      pictures.map(async (picture) => {
-        const pictureKey = `${Date.now()}_${picture.file.name}`;
-        try {
-          const result = await uploadData({
-            path: pictureKey,
-            data: picture.file,
-            options: {
-              contentType: picture.file.type,
-            },
-          });
-          console.log('Succeeded: ', result);
-          return `https://app-storage-76daa9bdaba9d-dev.s3.amazonaws.com/${encodeURIComponent(pictureKey)}`;
-        } catch (error) {
-          console.log('Error : ', error);
-          return null;
-        }
-      })
+        pictures.map(async (picture) => {
+            const pictureKey = `${Date.now()}_${picture.file.name}`;
+            try {
+                const result = await uploadData({
+                    path: pictureKey,
+                    data: picture.file,
+                    options: {
+                        contentType: picture.file.type,
+                    },
+                });
+                console.log('Succeeded: ', result);
+                return `https://app-storage-76daa9bdaba9d-dev.s3.amazonaws.com/${encodeURIComponent(pictureKey)}`;
+            } catch (error) {
+                console.log('Error : ', error);
+                return null;
+            }
+        })
     );
 
     // Filter out any null values from pictureUrls
     const validPictureUrls = pictureUrls.filter(url => url !== null);
 
     const input = {
-      name,
-      title,
-      description,
-      date: new Date(date).toISOString(), // Convert to AWSDateTime format
-      location,
-      seniorID,
-      country,
-      locale,
-      status: 'open',
-      picture,
-      urgent,
-      tags: tagsArray,
-      pictures: validPictureUrls // Add the pictures URLs to the request input
+        name,
+        title,
+        description: transcribedText || description, // Use transcribed text if available
+        date: dateISO, // Use ISO formatted date
+        location,
+        seniorID,
+        country,
+        locale,
+        status: 'open',
+        picture,
+        urgent,
+        tags: tagsArray,
+        pictures: validPictureUrls // Add the pictures URLs to the request input
     };
 
     try {
-      const result = await client.graphql({
-        query: createRequest,
-        variables: { input }
-      });
-      navigate('/requests');
+        const result = await client.graphql({
+            query: createRequest,
+            variables: { input }
+        });
+        navigate('/requests');
     } catch (error) {
-      console.error('Error posting request:', error);
+        console.error('Error posting request:', error);
     }
-  };
+};
+
 
   return (
     <div className="pr-page">
@@ -179,6 +192,7 @@ const PostRequest = () => {
           cols="50"
           className="pr-textarea"
         />
+
         <label htmlFor="daysFromNow" className="pr-help-label">You would like to receive help in the next - days:</label>
         <input
           id="daysFromNow"
@@ -236,6 +250,8 @@ const PostRequest = () => {
             <img key={index} src={preview} alt={`Preview ${index}`} className="pr-picture-preview" />
           ))}
         </div>
+        {/* Integrate the SpeechToText component */}
+        <SpeechToText setTranscribedText={setTranscribedText} />
         <button className="pr-button" type="submit">Post Request</button>
       </form>
     </div>

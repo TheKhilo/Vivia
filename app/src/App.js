@@ -18,6 +18,15 @@ import ViewResponses from './ViewResponses';
 import Leaderboard from './Leaderboard';
 import PostForm from './PostForm';
 import './App.css';
+import SpeechToText from './SpeechToText';
+import { Amplify } from 'aws-amplify';
+import amplifyconfig from './aws-exports';  // Make sure this path matches your config file
+Amplify.configure(amplifyconfig);
+
+
+
+
+
 
 
 function App() {
@@ -42,8 +51,7 @@ function App() {
         <Route path="/volunteer-responses" element={<VolunteerResponses/>} />
         <Route path="/leaderboard" element={<Leaderboard/>} />
         <Route path="/post-form" element={<PostForm/>} />
-
-
+        <Route path="/speech-to-text" element={<SpeechToText />} />
       </Routes>
     </div>
   );
