@@ -91,6 +91,13 @@
       ]
     }
   },
+  "predictions": {
+    "transcription2dc72a76": {
+      "convertType": "transcription",
+      "providerPlugin": "awscloudformation",
+      "service": "Transcribe"
+    }
+  },
   "storage": {
     "s3appstorage76daa9bd": {
       "dependsOn": [],

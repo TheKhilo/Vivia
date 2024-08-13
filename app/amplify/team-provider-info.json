@@ -26,6 +26,9 @@
       },
       "api": {
         "app": {}
+      },
+      "predictions": {
+        "transcription2dc72a76": {}
       }
     }
   }

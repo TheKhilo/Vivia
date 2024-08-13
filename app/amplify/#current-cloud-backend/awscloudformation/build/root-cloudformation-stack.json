@@ -271,6 +271,26 @@
         }
       }
     },
+    "predictionstranscription2dc72a76": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/predictions/transcription2dc72a76-template.json",
+        "Parameters": {
+          "resourceName": "transcription2dc72a76",
+          "convertPolicyName": "transcriptionPolicy2dc72a76",
+          "authRoleName": {
+            "Ref": "AuthRoleName"
+          },
+          "unauthRoleName": {
+            "Ref": "UnauthRoleName"
+          },
+          "convertType": "transcription",
+          "language": "en-US",
+          "access": "authAndGuest",
+          "env": "dev"
+        }
+      }
+    },
     "UpdateRolesWithIDPFunction": {
       "DependsOn": [
         "AuthRole",

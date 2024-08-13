@@ -52,12 +52,12 @@
         "IdentityPoolName": "appfbcd3835_identitypool_fbcd3835__dev",
         "UserPoolName": "appfbcd3835_userpool_fbcd3835"
       },
-      "lastPushTimeStamp": "2024-08-01T19:23:54.115Z",
+      "lastPushTimeStamp": "2024-08-13T10:04:32.353Z",
       "providerMetadata": {
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/auth/appfbcd3835-cloudformation-template.json",
         "logicalId": "authappfbcd3835"
       },
-      "lastPushDirHash": "BymShTnDSSVA6OLBVGKVHcg0N5g="
+      "lastPushDirHash": "fdcADVS0kxPHuxXbBvzfh7c9u94="
     }
   },
   "hosting": {
@@ -66,12 +66,12 @@
       "service": "amplifyhosting",
       "type": "manual",
       "output": {},
-      "lastPushTimeStamp": "2024-08-01T19:23:54.115Z",
+      "lastPushTimeStamp": "2024-08-13T10:04:32.358Z",
       "providerMetadata": {
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/hosting/amplifyhosting-template.json",
         "logicalId": "hostingamplifyhosting"
       },
-      "lastPushDirHash": "3oVtih31V73l8/MO1dXTXrkoTLM="
+      "lastPushDirHash": "ZLuiVj+oXmYAUHn2f4g6X+2V9WY="
     }
   },
   "storage": {
@@ -79,7 +79,7 @@
       "service": "S3",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
-      "lastPushTimeStamp": "2024-08-01T19:23:54.115Z",
+      "lastPushTimeStamp": "2024-08-13T10:04:32.410Z",
       "providerMetadata": {
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/storage/cloudformation-template.json",
         "logicalId": "storages3appstorage76daa9bd"
@@ -88,7 +88,7 @@
         "BucketName": "app-storage-76daa9bdaba9d-dev",
         "Region": "us-east-1"
       },
-      "lastPushDirHash": "iYm0PIwMhMkpVQvYCbO+BK5I5CE="
+      "lastPushDirHash": "UfUHXkfTFgANUelY7qYoxmgCX0w="
     }
   },
   "api": {
@@ -127,12 +127,29 @@
         "GraphQLAPIEndpointOutput": "https://55mj2v3qynbpnjceq2zf5ipcve.appsync-api.us-east-1.amazonaws.com/graphql",
         "GraphQLAPIKeyOutput": "da2-oh3hnnmt6nerdfrpxz63mhwtim"
       },
-      "lastPushTimeStamp": "2024-08-01T19:23:54.115Z",
+      "lastPushTimeStamp": "2024-08-13T10:04:32.435Z",
       "providerMetadata": {
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/api/cloudformation-template.json",
         "logicalId": "apiapp"
       },
-      "lastPushDirHash": "2z6gXKY+2pTsi1TjPd5/EqMoPPs="
+      "lastPushDirHash": "kaMG0U3JaIduQwIBiGNulFWFi5s="
+    }
+  },
+  "predictions": {
+    "transcription2dc72a76": {
+      "providerPlugin": "awscloudformation",
+      "service": "Transcribe",
+      "convertType": "transcription",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-app-dev-aba9d-deployment/amplify-cfn-templates/predictions/transcription2dc72a76-template.json",
+        "logicalId": "predictionstranscription2dc72a76"
+      },
+      "lastPushTimeStamp": "2024-08-13T10:04:34.497Z",
+      "output": {
+        "language": "en-US",
+        "region": "us-east-1"
+      },
+      "lastPushDirHash": "kiAHYLuwWB3hDPw3Tg8tLlDPF6w="
     }
   }
 }
