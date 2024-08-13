@@ -33,7 +33,7 @@ const Leaderboard = () => {
     <div className="leaderboard-page">
       <header className="leaderboard-header">
         <h1 className="leaderboard-title">Volunteer Leaderboard</h1>
-        <button onClick={() => navigate('/community-requests')} className="back-button"> {/* Add the button here */}
+        <button onClick={() => navigate('/requests')} className="back-button"> {/* Add the button here */}
           Back to Community Requests
         </button>
       </header>
