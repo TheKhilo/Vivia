@@ -21,11 +21,27 @@ function CommunityRequests() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [role, setRole] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const [filterUrgent, setFilterUrgent] = useState(false);
   const [filterCountry, setFilterCountry] = useState(null);
   const [filterLocale, setFilterLocale] = useState(null);
-  const [filterTags, setFilterTags] = useState('');
+  const [filterTags, setFilterTags] = useState([]);
+
+  const tagOptions = [
+    { value: 'electrical', label: 'Electrical' },
+    { value: 'plumbing', label: 'Plumbing' },
+    { value: 'physical', label: 'Physical' },
+    { value: 'gardening', label: 'Gardening' },
+    { value: 'shopping', label: 'Shopping' },
+    { value: 'technology', label: 'Technology' },
+    { value: 'medical', label: 'Medical' },
+    { value: 'cooking', label: 'Cooking' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  const handleTagChange = (selectedOptions) => {
+    setFilterTags(selectedOptions ? selectedOptions.map(option => option.value) : []);
+  };
 
   useEffect(() => {
     fetchUser();
@@ -42,7 +58,7 @@ function CommunityRequests() {
       const userData = response.data.getUser;
       setRole(userData.role);
       setUserEmail(userData.email);
-      setLoading(false); // Set loading to false after fetching user data
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching user:', error);
     }
@@ -74,7 +90,7 @@ function CommunityRequests() {
       });
   
       const user = response.data.getUser;
-      const volunteerID = user.email; // Use the user's unique ID
+      const volunteerID = user.email;
       const email = user.email || '';
       const name = user.name;
     
@@ -91,8 +107,8 @@ function CommunityRequests() {
         variables: { input }
       });
   
-      setModalIsOpen(false); // Close the modal after sending response
-      setMessage(''); // Clear the message after sending
+      setModalIsOpen(false);
+      setMessage('');
     } catch (error) {
       console.error('Error responding to request:', error);
     }
@@ -122,7 +138,7 @@ function CommunityRequests() {
     const matchesUrgent = filterUrgent ? request.urgent === filterUrgent : true;
     const matchesCountry = filterCountry ? request.country === filterCountry.value : true;
     const matchesLocale = filterLocale ? request.locale === filterLocale.value : true;
-    const matchesTags = filterTags ? filterTags.split(',').every(tag => Array.isArray(request.tags) && request.tags.includes(tag.trim())) : true;
+    const matchesTags = filterTags.length > 0 ? filterTags.some(tag => request.tags.includes(tag)) : true;
     return matchesUrgent && matchesCountry && matchesLocale && matchesTags;
   });
 
@@ -151,7 +167,7 @@ function CommunityRequests() {
         </nav>
       </header>
       <main className="community-main">
-      <div className="community-actions">
+        <div className="community-actions">
           {role === 'volunteer' && (
             <Link to="/volunteer-responses" className="community-action-button">
               Responses
@@ -197,12 +213,13 @@ function CommunityRequests() {
           </label>
           <label>
             Tags:
-            <input
-              type="text"
-              placeholder="Enter tags"
-              value={filterTags}
-              onChange={(e) => setFilterTags(e.target.value)}
-              className="community-tag-input"
+            <Select
+              isMulti
+              value={tagOptions.filter(option => filterTags.includes(option.value))}
+              onChange={handleTagChange}
+              options={tagOptions}
+              placeholder="Select tags"
+              className="community-tag-select"
             />
           </label>
         </div>
@@ -229,7 +246,7 @@ function CommunityRequests() {
               {Array.isArray(request.pictures) && request.pictures.length > 0 && (
                 <div className="community-request-pictures">
                   {request.pictures.map((pic, index) => (
-                    <img key={index} src={pic} alt={`Request picture ${index + 1}`} className="community-request-pictures" />
+                    <img key={index} src={pic} alt={`Request picture ${index + 1}`} className="community-request-picture" />
                   ))}
                 </div>
               )}
@@ -237,38 +254,35 @@ function CommunityRequests() {
               {role === 'senior' ? null : (
                 <button 
                   onClick={() => openModal(request)} 
-                  className="community-respond-button"
+                  className="community-request-button"
                 >
                   Respond
                 </button>
-              )}
-              {selectedRequest && selectedRequest.id === request.id && (
-                <Modal
-                  isOpen={modalIsOpen}
-                  onRequestClose={closeModal}
-                  contentLabel="Respond to Request"
-                  className="community-modal"
-                  overlayClassName="community-modal-overlay"
-                >
-                  <h3>Respond to {selectedRequest.name}</h3>
-                  <textarea
-                    placeholder="Message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="community-textarea"
-                  />
-                  <button onClick={() => handleRespond(selectedRequest.id)} className="community-send-button">
-                    Send Response
-                  </button>
-                  <button onClick={closeModal} className="community-cancel-button">
-                    Cancel
-                  </button>
-                </Modal>
               )}
             </li>
           ))}
         </ul>
       </main>
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Response Modal"
+        className="response-modal"
+      >
+        <h2>Respond to Request</h2>
+        <form onSubmit={(e) => { e.preventDefault(); handleRespond(selectedRequest.id); }}>
+          <label>
+            Message:
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              required
+            />
+          </label>
+          <button type="submit">Submit Response</button>
+          <button type="button" onClick={closeModal}>Close</button>
+        </form>
+      </Modal>
     </div>
   );
 }
