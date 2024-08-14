@@ -28,6 +28,7 @@ function CommunityRequests() {
   const [filterTags, setFilterTags] = useState([]);
 
   const tagOptions = [
+    { value: 'All', label: 'All' },
     { value: 'electrical', label: 'Electrical' },
     { value: 'plumbing', label: 'Plumbing' },
     { value: 'physical', label: 'Physical' },
@@ -38,6 +39,13 @@ function CommunityRequests() {
     { value: 'cooking', label: 'Cooking' },
     { value: 'other', label: 'Other' }
   ];
+
+  // Categorize tags as "Other" if not in predefined options
+  const categorizeTag = (tags) => {
+    return tags.map(tag =>
+      tagOptions.some(option => option.value === tag) ? tag : 'other'
+    );
+  };
 
   const handleTagChange = (selectedOptions) => {
     setFilterTags(selectedOptions ? selectedOptions.map(option => option.value) : []);
@@ -134,11 +142,15 @@ function CommunityRequests() {
     setMessage('');
   };
 
+  // Adjust filter logic to handle 'All' option
   const filteredRequests = requests.filter((request) => {
     const matchesUrgent = filterUrgent ? request.urgent === filterUrgent : true;
     const matchesCountry = filterCountry ? request.country === filterCountry.value : true;
     const matchesLocale = filterLocale ? request.locale === filterLocale.value : true;
-    const matchesTags = filterTags.length > 0 ? filterTags.some(tag => request.tags.includes(tag)) : true;
+    const categorizedTags = categorizeTag(request.tags || []);
+    const matchesTags = filterTags.includes('All') || filterTags.length === 0
+      ? true
+      : filterTags.some(tag => categorizedTags.includes(tag));
     return matchesUrgent && matchesCountry && matchesLocale && matchesTags;
   });
 

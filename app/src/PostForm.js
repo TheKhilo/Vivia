@@ -8,12 +8,20 @@ import './PostForm.css';
 
 const client = generateClient();
 
+const predefinedTags = [
+  { value: 'medical', label: 'Medical' },
+  { value: 'news', label: 'News' },
+  { value: 'hobbies', label: 'Hobbies' },
+  { value: 'other', label: 'Other' },
+];
+
 const PostForm = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [pictures, setPictures] = useState([]);
   const [tags, setTags] = useState([]);
-  const [tagInput, setTagInput] = useState('');
+  const [selectedTag, setSelectedTag] = useState(null);
+  const [customTag, setCustomTag] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
   const [listening, setListening] = useState(false);
   const navigate = useNavigate();
@@ -83,10 +91,26 @@ const PostForm = () => {
     setPictures((prevPictures) => prevPictures.filter((_, i) => i !== index));
   };
 
-  const handleTagAddition = () => {
-    if (tagInput.trim() !== '') {
-      setTags([...tags, tagInput.trim()]);
-      setTagInput('');
+  const handleTagChange = (e) => {
+    const value = e.target.value;
+    if (value === 'other') {
+      setCustomTag('');
+      setSelectedTag(value);
+    } else {
+      setTags([...tags, value]);
+      setSelectedTag(null);
+    }
+  };
+
+  const handleCustomTagChange = (e) => {
+    setCustomTag(e.target.value);
+  };
+
+  const handleCustomTagAddition = () => {
+    if (customTag.trim() !== '') {
+      setTags([...tags, customTag.trim()]);
+      setCustomTag('');
+      setSelectedTag(null);
     }
   };
 
@@ -205,20 +229,34 @@ const PostForm = () => {
         </div>
 
         <div className="pr-tag-input">
-          <input
-            type="text"
-            placeholder="Enter tag"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
+          <select
+            value={selectedTag || 'default'}
+            onChange={handleTagChange}
             className="pr-input"
-          />
-          <button
-            type="button"
-            onClick={handleTagAddition}
-            className="pr-add-button"
           >
-            Add Tag
-          </button>
+            <option value="default" disabled>Select a tag</option>
+            {predefinedTags.map(tag => (
+              <option key={tag.value} value={tag.value}>{tag.label}</option>
+            ))}
+          </select>
+          {selectedTag === 'other' && (
+            <div className="custom-tag-input">
+              <input
+                type="text"
+                placeholder="Enter custom tag"
+                value={customTag}
+                onChange={handleCustomTagChange}
+                className="pr-input"
+              />
+              <button
+                type="button"
+                onClick={handleCustomTagAddition}
+                className="pr-add-button"
+              >
+                Add Custom Tag
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="pr-tags-list">
