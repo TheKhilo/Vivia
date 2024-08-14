@@ -15,6 +15,7 @@ const PostForm = () => {
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [listening, setListening] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -137,6 +138,28 @@ const PostForm = () => {
     }
   };
 
+  // Speech Recognition Setup
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+  const startListening = () => {
+    if (!recognition) {
+      console.warn('Speech recognition is not supported in this browser.');
+      return;
+    }
+
+    recognition.lang = 'en-US';
+    recognition.onstart = () => setListening(true);
+    recognition.onend = () => setListening(false);
+    recognition.onresult = (event) => {
+      const last = event.results.length - 1;
+      const speechResult = event.results[last][0].transcript;
+      setContent(prev => prev + ' ' + speechResult);
+    };
+
+    recognition.start();
+  };
+
   return (
     <div className="pr-page">
       <form onSubmit={handleSubmit} className="pr-form">
@@ -154,6 +177,14 @@ const PostForm = () => {
           onChange={(e) => setContent(e.target.value)}
           className="pr-textarea"
         />
+        <button
+          type="button"
+          onClick={startListening}
+          disabled={listening || !recognition}
+          className="pr-add-button voice-button"
+        >
+          {listening ? 'Listening...' : 'Add Description by Voice'}
+        </button>
 
         <input
           type="file"

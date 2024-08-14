@@ -155,3 +155,13 @@ body {
 .pr-tag-delete-button:hover {
   background-color: #d50000;
 }
+
+.pr-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.pr-voice-button {
+  align-self: flex-end; /* Aligns the button to the right */
+  margin-top: 10px;
+}

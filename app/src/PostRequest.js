@@ -4,8 +4,9 @@ import { createRequest } from './graphql/mutations';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import { uploadData } from 'aws-amplify/storage';
-import './PostRequest.css';
 import { getUser } from './graphql/queries';
+
+import './PostRequest.css';
 
 const client = generateClient();
 
@@ -19,7 +20,12 @@ const PostRequest = () => {
   const [tagInput, setTagInput] = useState('');
   const [pictures, setPictures] = useState([]);
   const [picturePreviews, setPicturePreviews] = useState([]);
+  const [listening, setListening] = useState(false);
   const navigate = useNavigate();
+
+  // Check for browser compatibility with SpeechRecognition
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = SpeechRecognition ? new SpeechRecognition() : null;
 
   const handleDaysChange = (e) => {
     const days = e.target.value;
@@ -101,7 +107,7 @@ const PostRequest = () => {
       variables: { id: user1.email }
     });
     const user = response.data.getUser;
-    const seniorID = user.email; // or user.attributes.sub
+    const seniorID = user.email;
     const country = user.country;
     const locale = user.locale;
     const name = user.name;
@@ -109,7 +115,6 @@ const PostRequest = () => {
     const picture = user.picture;
     const tagsArray = tags.map(tag => tag.text);
 
-    // Upload pictures to S3 and get their URLs
     const pictureUrls = await Promise.all(
       pictures.map(async (picture) => {
         const pictureKey = `${Date.now()}_${picture.file.name}`;
@@ -130,14 +135,13 @@ const PostRequest = () => {
       })
     );
 
-    // Filter out any null values from pictureUrls
     const validPictureUrls = pictureUrls.filter(url => url !== null);
 
     const input = {
       name,
       title,
       description,
-      date: new Date(date).toISOString(), // Convert to AWSDateTime format
+      date: new Date(date).toISOString(),
       location,
       seniorID,
       country,
@@ -146,7 +150,7 @@ const PostRequest = () => {
       picture,
       urgent,
       tags: tagsArray,
-      pictures: validPictureUrls // Add the pictures URLs to the request input
+      pictures: validPictureUrls
     };
 
     try {
@@ -158,6 +162,26 @@ const PostRequest = () => {
     } catch (error) {
       console.error('Error posting request:', error);
     }
+  };
+
+  const startListening = () => {
+    if (!recognition) {
+      console.warn('Speech recognition is not supported in this browser.');
+      return;
+    }
+
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => setListening(true);
+    recognition.onend = () => setListening(false);
+
+    recognition.onresult = (event) => {
+      const last = event.results.length - 1;
+      const speechResult = event.results[last][0].transcript;
+      setDescription(prev => prev + ' ' + speechResult);
+    };
+
+    recognition.start();
   };
 
   return (
@@ -179,6 +203,10 @@ const PostRequest = () => {
           cols="50"
           className="pr-textarea"
         />
+        <button type="button" onClick={startListening} disabled={listening || !recognition} className="pr-add-button">
+          {listening ? 'Listening...' : 'Add Description by Voice'}
+        </button>
+
         <label htmlFor="daysFromNow" className="pr-help-label">You would like to receive help in the next - days:</label>
         <input
           id="daysFromNow"
