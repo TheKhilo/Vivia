@@ -14,10 +14,7 @@
     "country-state-city": "^3.2.1",
     "libphonenumber-js": "^1.11.5",
     "microphone-stream": "^6.0.1",
-<<<<<<< HEAD
-=======
     "process": "^0.11.10",
->>>>>>> d0174b72528ef1730e112ec5ee1a08c8915bb9f1
     "react": "^18.3.1",
     "react-country-state-city": "^1.1.3",
     "react-datepicker": "^7.3.0",
