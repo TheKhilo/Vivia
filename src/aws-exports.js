@@ -31,7 +31,30 @@ const awsmobile = {
         "EMAIL"
     ],
     "aws_user_files_s3_bucket": "app-storage-76daa9bdaba9d-dev",
-    "aws_user_files_s3_bucket_region": "us-east-1"
+    "aws_user_files_s3_bucket_region": "us-east-1",
+    "aws_appsync_graphqlEndpoint": "https://55mj2v3qynbpnjceq2zf5ipcve.appsync-api.us-east-1.amazonaws.com/graphql",
+    "aws_appsync_region": "us-east-1",
+    "aws_appsync_authenticationType": "API_KEY",
+    "aws_appsync_apiKey": "da2-oh3hnnmt6nerdfrpxz63mhwtim",
+    "aws_mobile_analytics_app_id": "c3d4e5f2157e4030938c75217b232852",
+    "aws_mobile_analytics_app_region": "us-east-1",
+    "Analytics": {
+        "AWSPinpoint": {
+            "appId": "c3d4e5f2157e4030938c75217b232852",
+            "region": "us-east-1"
+        }
+    },
+    "predictions": {
+        "convert": {
+            "transcription": {
+                "region": "us-east-1",
+                "proxy": false,
+                "defaults": {
+                    "language": "en-US"
+                }
+            }
+        }
+    }
 };
 
 
