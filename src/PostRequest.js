@@ -13,7 +13,7 @@ const client = generateClient();
 const PostRequest = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(null);
   const [daysFromNow, setDaysFromNow] = useState('');
   const [urgent, setUrgent] = useState(false);
   const [tags, setTags] = useState([]);
@@ -21,9 +21,14 @@ const PostRequest = () => {
   const [pictures, setPictures] = useState([]);
   const [picturePreviews, setPicturePreviews] = useState([]);
   const [listening, setListening] = useState(false);
+  const [customTagVisible, setCustomTagVisible] = useState(false);
   const navigate = useNavigate();
 
-  // Check for browser compatibility with SpeechRecognition
+  const predefinedTags = [
+    'electrical', 'plumbing', 'physical', 'gardening', 
+    'shopping', 'technology', 'medical', 'cooking', 'other'
+  ];
+
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
 
@@ -33,9 +38,9 @@ const PostRequest = () => {
     if (days) {
       const newDate = new Date();
       newDate.setDate(newDate.getDate() + parseInt(days, 10));
-      setDate(newDate.toISOString().slice(0, 16)); // Set the date in the format yyyy-MM-ddThh:mm
+      setDate(newDate);
     } else {
-      setDate('');
+      setDate(null);
     }
   };
 
@@ -43,7 +48,18 @@ const PostRequest = () => {
     setTags(tags.filter((tag, index) => index !== i));
   };
 
-  const handleAddition = () => {
+  const handleTagSelection = (e) => {
+    const selectedTag = e.target.value;
+    if (selectedTag === 'other') {
+      setCustomTagVisible(true);
+    } else {
+      setTags([...tags, { id: tags.length + 1, text: selectedTag }]);
+      setCustomTagVisible(false);
+    }
+    setTagInput('');
+  };
+
+  const handleCustomTagAddition = () => {
     if (tagInput.trim() !== '') {
       setTags([...tags, { id: tags.length + 1, text: tagInput.trim() }]);
       setTagInput('');
@@ -80,7 +96,7 @@ const PostRequest = () => {
 
         canvas.toBlob((blob) => {
           callback(blob);
-        }, file.type, 0.8); // Adjust quality as needed
+        }, file.type, 0.8);
       };
     };
 
@@ -99,61 +115,66 @@ const PostRequest = () => {
     });
   };
 
+  const handleRemovePicture = (index) => {
+    setPictures(pictures.filter((_, i) => i !== index));
+    setPicturePreviews(picturePreviews.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const user1 = await fetchUserAttributes();
-    const response = await client.graphql({
-      query: getUser,
-      variables: { id: user1.email }
-    });
-    const user = response.data.getUser;
-    const seniorID = user.email;
-    const country = user.country;
-    const locale = user.locale;
-    const name = user.name;
-    const location = user.locale;
-    const picture = user.picture;
-    const tagsArray = tags.map(tag => tag.text);
-
-    const pictureUrls = await Promise.all(
-      pictures.map(async (picture) => {
-        const pictureKey = `${Date.now()}_${picture.file.name}`;
-        try {
-          const result = await uploadData({
-            path: pictureKey,
-            data: picture.file,
-            options: {
-              contentType: picture.file.type,
-            },
-          });
-          console.log('Succeeded: ', result);
-          return `https://app-storage-76daa9bdaba9d-dev.s3.amazonaws.com/${encodeURIComponent(pictureKey)}`;
-        } catch (error) {
-          console.log('Error : ', error);
-          return null;
-        }
-      })
-    );
-
-    const validPictureUrls = pictureUrls.filter(url => url !== null);
-
-    const input = {
-      name,
-      title,
-      description,
-      date: new Date(date).toISOString(),
-      location,
-      seniorID,
-      country,
-      locale,
-      status: 'open',
-      picture,
-      urgent,
-      tags: tagsArray,
-      pictures: validPictureUrls
-    };
-
     try {
+      const user1 = await fetchUserAttributes();
+      const response = await client.graphql({
+        query: getUser,
+        variables: { id: user1.email }
+      });
+      const user = response.data.getUser;
+      const seniorID = user.email;
+      const country = user.country;
+      const locale = user.locale;
+      const name = user.name;
+      const location = user.locale;
+      const picture = user.picture;
+      const tagsArray = tags.map(tag => tag.text);
+
+      const pictureUrls = await Promise.all(
+        pictures.map(async (picture) => {
+          const pictureKey = `${Date.now()}_${picture.file.name}`;
+          try {
+            const result = await uploadData({
+              path: pictureKey,
+              data: picture.file,
+              options: {
+                contentType: picture.file.type,
+              },
+            });
+            console.log('Succeeded: ', result);
+            return `https://app-storage-76daa9bdaba9d-dev.s3.amazonaws.com/${encodeURIComponent(pictureKey)}`;
+          } catch (error) {
+            console.log('Error : ', error);
+            return null;
+          }
+        })
+      );
+
+      const validPictureUrls = pictureUrls.filter(url => url !== null);
+
+      const input = {
+        name,
+        title,
+        description,
+        date: date ? new Date(date).toISOString() : null,
+        location,
+        seniorID,
+        country,
+        locale,
+        status: 'open',
+        picture,
+        urgent,
+        tags: tagsArray,
+        pictures: validPictureUrls
+      };
+
       const result = await client.graphql({
         query: createRequest,
         variables: { input }
@@ -224,17 +245,39 @@ const PostRequest = () => {
             onChange={(e) => setUrgent(e.target.checked)}
           />
         </div>
+
         <label htmlFor="tags">Tags:</label>
-        <div className="pr-tag-input">
-          <input
-            type="text"
-            placeholder="Enter tag"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
+        <div className="pr-tag-select">
+          <label htmlFor="predefinedTags">Choose a tag:</label>
+          <select
+            id="predefinedTags"
+            onChange={handleTagSelection}
             className="pr-input"
-          />
-          <button type="button" onClick={handleAddition} className="pr-add-button">Add Tag</button>
+          >
+            <option value="">Select a tag</option>
+            {predefinedTags.map((tag, index) => (
+              <option key={index} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {customTagVisible && (
+          <div className="pr-custom-tag">
+            <input
+              type="text"
+              placeholder="Enter custom tag"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              className="pr-input"
+            />
+            <button type="button" onClick={handleCustomTagAddition} className="pr-add-button">
+              Add Custom Tag
+            </button>
+          </div>
+        )}
+
         <div className="pr-tags-list">
           {tags.map((tag, index) => (
             <div key={index} className="pr-tag">
@@ -243,6 +286,7 @@ const PostRequest = () => {
             </div>
           ))}
         </div>
+
         <label htmlFor="picture-upload" className="pr-picture-label">Add Photos:</label>
         <input
           id="picture-upload"
@@ -250,7 +294,7 @@ const PostRequest = () => {
           multiple
           onChange={handleFileChange}
           className="pr-input"
-          style={{ display: 'none' }} // Hide the file input
+          style={{ display: 'none' }}
         />
         <button
           type="button"
@@ -261,7 +305,12 @@ const PostRequest = () => {
         </button>
         <div className="pr-picture-previews">
           {picturePreviews.map((preview, index) => (
-            <img key={index} src={preview} alt={`Preview ${index}`} className="pr-picture-preview" />
+            <div key={index} className="pr-picture-preview-container">
+              <img src={preview} alt={`Preview ${index}`} className="pr-picture-preview" />
+              <button type="button" onClick={() => handleRemovePicture(index)} className="pr-remove-picture-button">
+                &times;
+              </button>
+            </div>
           ))}
         </div>
         <button className="pr-button" type="submit">Post Request</button>

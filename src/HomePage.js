@@ -15,9 +15,6 @@ function HomePage() {
           <Link to="/about">About Us</Link>
         </nav>
       </header>
-     <div className="emergency-button-container">
-	  <Link to="/emergency" className="emergency-button">Emergency</Link>
-	 </div>
 	  <section className="intro-section">
         <video className="intro-video" autoPlay loop muted>
           <source src="/videos/intro-video.mp4" type="video/mp4" />
@@ -46,7 +43,7 @@ function HomePage() {
             <p>Request help for various tasks such as grocery shopping, transportation, and home maintenance. Our dedicated volunteers are here to assist you with your daily needs.</p>
           </li>
           <li>
-            <h3>Instant Notifications</h3>
+            <h3>Instant Replies</h3>
             <p>Receive real-time alerts for any responses to your posts or assistance requests. Stay informed and connected with timely updates.</p>
           </li>
           <li>
@@ -105,6 +102,7 @@ function HomePage() {
           <Link to="/privacy">Privacy Policy</Link>
         </nav>
       </footer>
+      
     </div>
   );
 }

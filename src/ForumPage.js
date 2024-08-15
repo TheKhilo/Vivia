@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { generateClient } from 'aws-amplify/api';
 import { listPosts, getUser, commentsByPostIDAndId, repliesByCommentIDAndId } from './graphql/queries';
-import { createComment, createReply } from './graphql/mutations';
+import { createComment, createReply, createPost } from './graphql/mutations';
 import LikeButton from './LikeButton';
 import './ForumPage.css';
 import Modal from 'react-modal';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import { signOut } from 'aws-amplify/auth';
+import Select from 'react-select';
 
 const client = generateClient();
 
@@ -23,8 +24,17 @@ const ForumPage = () => {
   const [commentsModalIsOpen, setCommentsModalIsOpen] = useState(false);
   const [repliesModalIsOpen, setRepliesModalIsOpen] = useState(false);
   const [currentUserId, setCurrentUserId] = useState('');
-  const [filterTag, setFilterTag] = useState('');
+  const [selectedTag, setSelectedTag] = useState(null);
+  const [showMyPostsOnly, setShowMyPostsOnly] = useState(false);
   const navigate = useNavigate();
+
+  const tagOptions = [
+    { value: 'All', label: 'All' },
+    { value: 'medical', label: 'Medical' },
+    { value: 'news', label: 'News' },
+    { value: 'hobbies', label: 'Hobbies' },
+    { value: 'other', label: 'Other' }
+  ];
 
   useEffect(() => {
     fetchPosts();
@@ -48,6 +58,7 @@ const ForumPage = () => {
       console.log('Error signing out:', error);
     }
   };
+
 
   const fetchPosts = async () => {
     try {
@@ -177,14 +188,14 @@ const ForumPage = () => {
     const input = {
       postID: selectedPost.id,
       content: commentContent,
-      authorID: currentUserId // replace with actual user id
+      authorID: currentUserId
     };
 
     try {
       await client.graphql({ query: createComment, variables: { input } });
       setCommentContent('');
       closeCommentModal();
-      await openCommentsModal(selectedPost); // Fetch and display updated comments
+      await openCommentsModal(selectedPost);
     } catch (error) {
       console.error('Error creating comment:', error);
     }
@@ -195,22 +206,35 @@ const ForumPage = () => {
     const input = {
       commentID: selectedComment.id,
       content: replyContent,
-      authorID: currentUserId // replace with actual user id
+      authorID: currentUserId
     };
 
     try {
       await client.graphql({ query: createReply, variables: { input } });
       setReplyContent('');
-      await openCommentsModal(selectedPost); // Fetch and display updated comments
+      await openCommentsModal(selectedPost);
       closeReplyModal();
     } catch (error) {
       console.error('Error creating reply:', error);
     }
   };
 
-  const filteredPosts = filterTag
-    ? posts.filter(post => Array.isArray(post.tags) && post.tags.includes(filterTag))
+  const categorizeTag = (tags) => {
+    return tags.includes('medical') || tags.includes('news') || tags.includes('hobbies')
+      ? tags
+      : [...tags, 'other'];
+  };
+
+  const filteredPosts = selectedTag && selectedTag.value !== 'All'
+    ? posts.filter(post => {
+        const categorizedTags = categorizeTag(post.tags || []);
+        return categorizedTags.includes(selectedTag.value);
+      })
     : posts;
+
+  const myPosts = showMyPostsOnly
+    ? filteredPosts.filter(post => post.authorID === currentUserId)
+    : filteredPosts;
 
   return (
     <div className="forum-page">
@@ -223,19 +247,27 @@ const ForumPage = () => {
         </div>
       </header>
 
-      
       <div className="tag-filter">
-        <input
-          type="text"
-          placeholder="Filter by tag"
-          value={filterTag}
-          onChange={(e) => setFilterTag(e.target.value)}
-          className="tag-input"
+        <Select
+          value={selectedTag}
+          onChange={setSelectedTag}
+          options={tagOptions}
+          placeholder="Select a tag"
+          className="tag-select"
         />
         <Link to="/post-form" className="forum-button">Post To Forum</Link>
+        <label>
+          <input
+            type="checkbox"
+            checked={showMyPostsOnly}
+            onChange={(e) => setShowMyPostsOnly(e.target.checked)}
+          />
+          Show My Posts Only
+        </label>
       </div>
+
       <section className="forum-posts">
-        {filteredPosts.map(post => (
+        {myPosts.map(post => (
           <div key={post.id} className="forum-post">
             <div className="author-info">
               {post.author && (
@@ -258,7 +290,7 @@ const ForumPage = () => {
                 <span key={index} className="post-tag">{tag}</span>
               ))}
             </div>
-            <LikeButton postId={post.id} likes={post.likes} likedBy={post.likedBy} />
+            <LikeButton postId={post.id} likes={post.likes} likedBy={post.likedBy || []} />
             <button type="button" onClick={() => openCommentModal(post)}>Comment</button>
             <button type="button" onClick={() => openCommentsModal(post)}>View Comments</button>
           </div>

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateClient } from 'aws-amplify/api';
-import { createPost } from './graphql/mutations';
+import { createPost, createComment } from './graphql/mutations'; // Import createComment for auto comment
 import { uploadData } from 'aws-amplify/storage';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+import { GoogleGenerativeAI } from '@google/generative-ai'; // Import Google Generative AI
 import './PostForm.css';
 
 const client = generateClient();
+const genAI = new GoogleGenerativeAI("AIzaSyAt68qPaTE-cVY0UcmbqhNhWPvIawAx8_Y");
+
+const predefinedTags = ["Medical", "News", "Hobbies", "Other"];
 
 const PostForm = () => {
   const [title, setTitle] = useState('');
@@ -14,9 +18,11 @@ const PostForm = () => {
   const [pictures, setPictures] = useState([]);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
+  const [selectedPredefinedTag, setSelectedPredefinedTag] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
   const [listening, setListening] = useState(false);
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     fetchUser();
@@ -84,7 +90,10 @@ const PostForm = () => {
   };
 
   const handleTagAddition = () => {
-    if (tagInput.trim() !== '') {
+    if (selectedPredefinedTag && selectedPredefinedTag !== 'Other') {
+      setTags([...tags, selectedPredefinedTag]);
+      setSelectedPredefinedTag('');
+    } else if (tagInput.trim() !== '') {
       setTags([...tags, tagInput.trim()]);
       setTagInput('');
     }
@@ -92,6 +101,18 @@ const PostForm = () => {
 
   const handleTagRemove = (index) => {
     setTags(tags.filter((_, i) => i !== index));
+  };
+
+  const createAutoComment = async (postDescription) => {
+    try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+      const result = await model.generateContent([postDescription]);
+      return result.response.text();
+    } catch (error) {
+      console.error('Error generating comment:', error);
+      return null;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -131,10 +152,34 @@ const PostForm = () => {
     };
 
     try {
-      await client.graphql({ query: createPost, variables: { input } });
+      // Create the post
+      const postResult = await client.graphql({ query: createPost, variables: { input } });
+      const createdPost = postResult.data.createPost;
+
+      // Generate an auto-comment using the description of the post
+      const autoComment = await createAutoComment(content);
+      if (autoComment) {
+        const commentInput = {
+          postID: createdPost.id,
+          content: autoComment,
+          authorID: 'jrf07@mail.aub.edu', // Use a specific authorID for the bot-generated comment
+        };
+        await client.graphql({ query: createComment, variables: { input: commentInput } });
+      }
+
       navigate('/forum');
     } catch (error) {
       console.error('Error posting request:', error);
+      if (error.response && error.response.data && error.response.data.errors) {
+        // Handle GraphQL errors
+        setErrorMessage(error.response.data.errors[0].message);
+      } else if (error.message) {
+        // Handle other errors (e.g., network errors)
+        setErrorMessage(error.message);
+      } else {
+        // Generic fallback error message
+        setErrorMessage('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
@@ -205,13 +250,28 @@ const PostForm = () => {
         </div>
 
         <div className="pr-tag-input">
-          <input
-            type="text"
-            placeholder="Enter tag"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
+          <select
+            value={selectedPredefinedTag}
+            onChange={(e) => setSelectedPredefinedTag(e.target.value)}
             className="pr-input"
-          />
+          >
+            <option value="">Choose a tag</option>
+            {predefinedTags.map((tag, index) => (
+              <option key={index} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+
+          {selectedPredefinedTag === 'Other' && (
+            <input
+              type="text"
+              placeholder="Enter your tag"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              className="pr-input"
+            />
+          )}
           <button
             type="button"
             onClick={handleTagAddition}

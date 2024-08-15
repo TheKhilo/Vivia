@@ -21,13 +21,41 @@ function CommunityRequests() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [role, setRole] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const [filterUrgent, setFilterUrgent] = useState(false);
   const [filterCountry, setFilterCountry] = useState(null);
   const [filterLocale, setFilterLocale] = useState(null);
-  const [filterTags, setFilterTags] = useState('');
+  const [filterTags, setFilterTags] = useState([]);
+  const [isPageVisible, setIsPageVisible] = useState(false); // New state for page visibility
+  const [roleLoading, setRoleLoading] = useState(true); // New state to track role loading
+
+  const tagOptions = [
+    { value: 'All', label: 'All' },
+    { value: 'electrical', label: 'Electrical' },
+    { value: 'plumbing', label: 'Plumbing' },
+    { value: 'physical', label: 'Physical' },
+    { value: 'gardening', label: 'Gardening' },
+    { value: 'shopping', label: 'Shopping' },
+    { value: 'technology', label: 'Technology' },
+    { value: 'medical', label: 'Medical' },
+    { value: 'cooking', label: 'Cooking' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  const categorizeTag = (tags) => {
+    return tags.map(tag =>
+      tagOptions.some(option => option.value === tag) ? tag : 'other'
+    );
+  };
+
+  const handleTagChange = (selectedOptions) => {
+    setFilterTags(selectedOptions ? selectedOptions.map(option => option.value) : []);
+  };
 
   useEffect(() => {
+    setTimeout(() => {
+      setIsPageVisible(true);
+    }, 1000); // Delay of 1 second
     fetchUser();
     fetchRequests();
   }, []);
@@ -42,7 +70,8 @@ function CommunityRequests() {
       const userData = response.data.getUser;
       setRole(userData.role);
       setUserEmail(userData.email);
-      setLoading(false); // Set loading to false after fetching user data
+      setLoading(false);
+      setRoleLoading(false); // Role has been loaded
     } catch (error) {
       console.error('Error fetching user:', error);
     }
@@ -74,7 +103,7 @@ function CommunityRequests() {
       });
   
       const user = response.data.getUser;
-      const volunteerID = user.email; // Use the user's unique ID
+      const volunteerID = user.email;
       const email = user.email || '';
       const name = user.name;
     
@@ -91,8 +120,8 @@ function CommunityRequests() {
         variables: { input }
       });
   
-      setModalIsOpen(false); // Close the modal after sending response
-      setMessage(''); // Clear the message after sending
+      setModalIsOpen(false);
+      setMessage('');
     } catch (error) {
       console.error('Error responding to request:', error);
     }
@@ -122,7 +151,10 @@ function CommunityRequests() {
     const matchesUrgent = filterUrgent ? request.urgent === filterUrgent : true;
     const matchesCountry = filterCountry ? request.country === filterCountry.value : true;
     const matchesLocale = filterLocale ? request.locale === filterLocale.value : true;
-    const matchesTags = filterTags ? filterTags.split(',').every(tag => Array.isArray(request.tags) && request.tags.includes(tag.trim())) : true;
+    const categorizedTags = categorizeTag(request.tags || []);
+    const matchesTags = filterTags.includes('All') || filterTags.length === 0
+      ? true
+      : filterTags.some(tag => categorizedTags.includes(tag));
     return matchesUrgent && matchesCountry && matchesLocale && matchesTags;
   });
 
@@ -150,125 +182,131 @@ function CommunityRequests() {
           </button>
         </nav>
       </header>
-      <main className="community-main">
-      <div className="community-actions">
-          {role === 'volunteer' && (
-            <Link to="/volunteer-responses" className="community-action-button">
-              Responses
-            </Link>
+
+      {isPageVisible ? (
+        <main className="community-main">
+          {!roleLoading && ( // Render after role is loaded
+            <div className="community-actions">
+              {role === 'volunteer' && (
+                <Link to="/volunteer-responses" className="community-action-button">
+                  Responses
+                </Link>
+              )}
+              {role === 'senior' && (
+                <Link to="/senior-responses" className="community-action-button">
+                  My requests
+                </Link>
+              )}
+              {role !== 'volunteer' && (
+                <Link to="/post-request" className="community-action-button">
+                  Post a Request
+                </Link>
+              )}
+            </div>
           )}
-          {role === 'senior' && (
-            <Link to="/senior-responses" className="community-action-button">
-              Responses
-            </Link>
-          )}
-          {role !== 'volunteer' && (
-            <Link to="/post-request" className="community-action-button">
-              Post a Request
-            </Link>
-          )}
-        </div>
-        <div className="community-filters">
-          <label>
-            Urgent:
-            <input
-              type="checkbox"
-              checked={filterUrgent}
-              onChange={(e) => setFilterUrgent(e.target.checked)}
-            />
-          </label>
-          <label>
-            Country:
-            <Select
-              value={filterCountry}
-              onChange={setFilterCountry}
-              options={countryOptions}
-              placeholder="Select a country"
-            />
-          </label>
-          <label>
-            State:
-            <Select
-              value={filterLocale}
-              onChange={setFilterLocale}
-              options={localeOptions}
-              placeholder="Select a state"
-            />
-          </label>
-          <label>
-            Tags:
-            <input
-              type="text"
-              placeholder="Enter tags"
-              value={filterTags}
-              onChange={(e) => setFilterTags(e.target.value)}
-              className="community-tag-input"
-            />
-          </label>
-        </div>
-        <ul className="community-request-list">
-          {sortedRequests.map((request) => (
-            <li key={request.id} className={`community-request-item ${request.urgent ? 'urgent-request' : ''}`}>
-              {request.picture && <img src={request.picture} alt={`${request.name}'s profile`} className="community-request-picture" />}
-              <h3>{request.name}</h3>
-              <h4>{request.title}</h4>
-              <p>{request.description}</p>
-              <p><strong>Due date:</strong> {request.date ? new Date(request.date).toLocaleString() : 'No date provided'}</p>
-              <p>{request.country || 'No country provided'}</p>
-              <p>{request.locale || 'No locale provided'}</p>
-              {request.tags && request.tags.length > 0 && (
-                <div className="community-tags">
-                  <strong>Tags:</strong>
-                  <ul className="community-tag-list">
-                    {request.tags.map((tag, index) => (
-                      <li key={index} className="community-tag">{tag}</li>
+          <div className="community-filters">
+            <label>
+              Urgent:
+              <input
+                type="checkbox"
+                checked={filterUrgent}
+                onChange={(e) => setFilterUrgent(e.target.checked)}
+              />
+            </label>
+            <label>
+              Country:
+              <Select
+                value={filterCountry}
+                onChange={setFilterCountry}
+                options={countryOptions}
+                placeholder="Select a country"
+              />
+            </label>
+            <label>
+              State:
+              <Select
+                value={filterLocale}
+                onChange={setFilterLocale}
+                options={localeOptions}
+                placeholder="Select a state"
+              />
+            </label>
+            <label>
+              Tags:
+              <Select
+                isMulti
+                value={tagOptions.filter(option => filterTags.includes(option.value))}
+                onChange={handleTagChange}
+                options={tagOptions}
+                placeholder="Select tags"
+                className="community-tag-select"
+              />
+            </label>
+          </div>
+          <ul className="community-request-list">
+            {sortedRequests.map((request) => (
+              <li key={request.id} className={`community-request-item ${request.urgent ? 'urgent-request' : ''}`}>
+                {request.picture && <img src={request.picture} alt={`${request.name}'s profile`} className="community-request-picture" />}
+                <h3>{request.name}</h3>
+                <h4>{request.title}</h4>
+                <p>{request.description}</p>
+                <p><strong>Due date:</strong> {request.date ? new Date(request.date).toLocaleString() : 'No date provided'}</p>
+                <p>{request.country || 'No country provided'}</p>
+                <p>{request.locale || 'No locale provided'}</p>
+                {request.tags && request.tags.length > 0 && (
+                  <div className="community-tags">
+                    <strong>Tags:</strong>
+                    <ul className="community-tag-list">
+                      {request.tags.map((tag, index) => (
+                        <li key={index} className="community-tag">{tag}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {Array.isArray(request.pictures) && request.pictures.length > 0 && (
+                  <div className="community-request-pictures">
+                    {request.pictures.map((pic, index) => (
+                      <img key={index} src={pic} alt={`Request picture ${index + 1}`} className="community-request-pictures" />
                     ))}
-                  </ul>
-                </div>
-              )}
-              {Array.isArray(request.pictures) && request.pictures.length > 0 && (
-                <div className="community-request-pictures">
-                  {request.pictures.map((pic, index) => (
-                    <img key={index} src={pic} alt={`Request picture ${index + 1}`} className="community-request-pictures" />
-                  ))}
-                </div>
-              )}
-              {request.urgent && <p className="urgent-text">This request is urgent!</p>}
-              {role === 'senior' ? null : (
-                <button 
-                  onClick={() => openModal(request)} 
-                  className="community-respond-button"
-                >
-                  Respond
-                </button>
-              )}
-              {selectedRequest && selectedRequest.id === request.id && (
-                <Modal
-                  isOpen={modalIsOpen}
-                  onRequestClose={closeModal}
-                  contentLabel="Respond to Request"
-                  className="community-modal"
-                  overlayClassName="community-modal-overlay"
-                >
-                  <h3>Respond to {selectedRequest.name}</h3>
-                  <textarea
-                    placeholder="Message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="community-textarea"
-                  />
-                  <button onClick={() => handleRespond(selectedRequest.id)} className="community-send-button">
-                    Send Response
+                  </div>
+                )}
+                {request.urgent && <p className="urgent-text">This request is urgent!</p>}
+                {role === 'senior' ? null : (
+                  <button 
+                    onClick={() => openModal(request)} 
+                    className="community-request-button"
+                  >
+                    Respond
                   </button>
-                  <button onClick={closeModal} className="community-cancel-button">
-                    Cancel
-                  </button>
-                </Modal>
-              )}
-            </li>
-          ))}
-        </ul>
-      </main>
+                )}
+              </li>
+            ))}
+          </ul>
+        </main>
+      ) : (
+        <p>Loading...</p> // Placeholder content while waiting
+      )}
+
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Response Modal"
+        className="response-modal"
+      >
+        <h2>Respond to Request</h2>
+        <form onSubmit={(e) => { e.preventDefault(); handleRespond(selectedRequest.id); }}>
+          <label>
+            Message:
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              required
+            />
+          </label>
+          <button type="submit">Submit Response</button>
+          <button type="button" onClick={closeModal}>Close</button>
+        </form>
+      </Modal>
     </div>
   );
 }
