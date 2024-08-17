@@ -183,8 +183,7 @@ function SignUpPage() {
           },
         });
       } catch (error) {
-        alert(error);
-        console.log(error);
+        navigate('/confirm-signup', { state: { username: email, password } });
       }
 
       // Handle auto sign-in after sign-up
